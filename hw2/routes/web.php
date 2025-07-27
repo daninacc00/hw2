@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InterestController;
+use App\Http\Controllers\FavoritesController;
 
 // Route pubbliche per autenticazione
 Route::get('/', [HomeController::class, 'index']);
@@ -36,6 +37,14 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     Route::get('/api/interests', [InterestController::class, 'getInterests']);
     Route::get('/api/interests/user', [InterestController::class, 'getUserInterests']);
     Route::post('/api/interests/toggle', [InterestController::class, 'toggleInterest']);
+    
+    Route::get('/account/favorites', [FavoritesController::class, 'index']);
+    Route::get('/api/favorites/get', [FavoritesController::class, 'getFavorites']);
+    Route::post('/api/favorites/add', [FavoritesController::class, 'addToFavorites']);
+    Route::post('/api/favorites/remove', [FavoritesController::class, 'removeFromFavorites']);
+    
+    Route::get('/api/product', [FavoritesController::class, 'getProduct']);
+    
     // Route::get('/account/profile', [AccountController::class, 'profile']);
     // Route::post('/account/profile', [AccountController::class, 'updateProfile']);
     // Route::get('/account/settings', [AccountController::class, 'settings']);

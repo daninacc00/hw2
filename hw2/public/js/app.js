@@ -32,7 +32,7 @@ function handleAction(action) {
             window.location.href = "/account";
             break;
         case 'favorites':
-            window.location.href = "/favorites";
+            window.location.href = "/account/favorites";
             break;
         case 'logout':
             window.location.href = "/logout";

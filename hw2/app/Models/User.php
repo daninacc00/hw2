@@ -42,6 +42,16 @@ class User extends Model
         return $this->hasMany(UserInterest::class);
     }
 
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+     public function cart()
+    {
+        return $this->hasMany(Cart::class);
+    }
+
     public function register($username, $email, $password, $nome, $cognome)
     {
         if ($this->isUserExist($username, $email)) {

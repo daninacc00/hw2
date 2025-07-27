@@ -4,7 +4,7 @@ function handleClickTab(e, link) {
     const tabName = link.getAttribute('data-tab');
     
     if (tabName === 'favorites') {
-        window.location.href = '/pages/shop/favorites/favorites.php';
+        window.location.href = '/account/favorites';
         return;
     }
     

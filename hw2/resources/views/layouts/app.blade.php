@@ -62,38 +62,38 @@
                     </li>
                     <li class="list-item">
                         @if(session('user_id'))
-                            <div class="tooltip-container">
-                                <p class="link-text">
-                                    Ciao, {{ session('user_first_name') }}
-                                </p>
-                                <div class="tooltip">
-                                    <h3 class="tooltip-title">Account</h3>
-                                    <ul class="action-list">
-                                        <li class="action-item" data-action="profile">
-                                            <span class="action-text">Profilo</span>
-                                        </li>
-                                        <li class="action-item" data-action="favorites">
-                                            <span class="action-text">Preferiti</span>
-                                        </li>
-                                        <li class="action-item" data-action="newsletter">
-                                            <span class="action-text">Posta in arrivo</span>
-                                        </li>
-                                        <li class="action-item" data-action="experience">
-                                            <span class="action-text">Esperienze</span>
-                                        </li>
-                                        <li class="action-item" data-action="settings">
-                                            <span class="action-text">Impostazioni account</span>
-                                        </li>
-                                        <li class="action-item" data-action="logout">
-                                            <span class="action-text">Esci</span>
-                                        </li>
-                                    </ul>
-                                </div>
+                        <div class="tooltip-container">
+                            <p class="link-text">
+                                Ciao, {{ session('user_first_name') }}
+                            </p>
+                            <div class="tooltip">
+                                <h3 class="tooltip-title">Account</h3>
+                                <ul class="action-list">
+                                    <li class="action-item" data-action="profile">
+                                        <span class="action-text">Profilo</span>
+                                    </li>
+                                    <li class="action-item" data-action="favorites">
+                                        <span class="action-text">Preferiti</span>
+                                    </li>
+                                    <li class="action-item" data-action="newsletter">
+                                        <span class="action-text">Posta in arrivo</span>
+                                    </li>
+                                    <li class="action-item" data-action="experience">
+                                        <span class="action-text">Esperienze</span>
+                                    </li>
+                                    <li class="action-item" data-action="settings">
+                                        <span class="action-text">Impostazioni account</span>
+                                    </li>
+                                    <li class="action-item" data-action="logout">
+                                        <span class="action-text">Esci</span>
+                                    </li>
+                                </ul>
                             </div>
+                        </div>
                         @else
-                            <a class='link-item' href='/login'>
-                                <p class='link-text'>Accedi</p>
-                            </a>
+                        <a class='link-item' href='/login'>
+                            <p class='link-text'>Accedi</p>
+                        </a>
                         @endif
                     </li>
                 </ul>
@@ -169,12 +169,9 @@
                 </div>
 
                 <div class="icon-button favorites-button">
-                    <a href="/pages/shop/favorites/favorites.php" class="link-item favorites-link">
+                    <a href="/account/favorites" class="link-item favorites-link">
                         <img src="/assets/icons/hearth-icon.svg" alt="Preferiti">
-                        <span
-                            class="counter-badge <?php echo "hidden"  ?>"
-                            id="favorites-counter">
-                        </span>
+                        <span class="counter-badge hidden" id="favorites-counter"></span>
                     </a>
                 </div>
 
