@@ -12,9 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Il middleware CSRF deve essere applicato automaticamente alle route web
         $middleware->web(append: [
-            VerifyCsrfToken::class,
+            // VerifyCsrfToken::class, // Non serve qui, viene gestito automaticamente
         ]);
+        
+        // Se hai problemi con CSRF, puoi escludere specifiche route
+        // $middleware->validateCsrfTokens(except: [
+        //     'api/*',
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

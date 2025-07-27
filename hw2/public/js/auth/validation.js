@@ -1,26 +1,3 @@
-function showError(input, message) {
-    input.classList.add('error');
-
-    const existingError = input.parentNode.querySelector('.error-text');
-    if (existingError) {
-        existingError.remove();
-    }
-
-    const errorSpan = document.createElement('span');
-    errorSpan.className = 'error-text';
-    errorSpan.textContent = message;
-    input.parentNode.appendChild(errorSpan);
-}
-
-function removeError(input) {
-    input.classList.remove('error');
-
-    const existingError = input.parentNode.querySelector('.error-text');
-    if (existingError) {
-        existingError.remove();
-    }
-}
-
 function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);

@@ -1,104 +1,109 @@
-const passwordField = document.getElementById('password');
-const confirmField = document.getElementById('password_confirm');
-const registerForm = document.getElementById('registerForm');
-registerForm.addEventListener('submit', handleRegister);
+function validateUsername() {
+    const username = usernameField.value.trim();
 
-if (passwordField) {
-    passwordField.addEventListener('input', function () {
-        validatePasswordStrength(passwordField.value);
-    });
-}
+    if (username === '') {
+        showError(usernameField, 'Username è obbligatorio');
+        return false;
+    }
 
-if (confirmField && passwordField) {
-    confirmField.addEventListener('input', function () {
-        if (confirmField.value !== passwordField.value) {
-            showError(confirmField, 'Le password non corrispondono');
-        } else {
-            removeError(confirmField);
-        }
-    });
-}
-
-function validate() {
-    let isValid = true;
-
-    const username = document.getElementById('username');
-    if (username.value.trim() === '') {
-        showError(username, 'Username è obbligatorio');
-        isValid = false;
-    } else if (username.value.trim().length < 3) {
+    if (username.length < 3) {
         showError(username, 'Username deve contenere almeno 3 caratteri');
         isValid = false;
-    } else {
-        removeError(username);
     }
 
-    const email = document.getElementById('email');
-    if (email.value.trim() === '') {
-        showError(email, 'Email è obbligatoria');
-        isValid = false;
-    } else if (!isValidEmail(email.value.trim())) {
-        showError(email, 'Email non valida');
-        isValid = false;
-    } else {
-        removeError(email);
+    removeError(usernameField);
+    return true;
+}
+
+function validateEmail() {
+    const email = emailField.value.trim();
+
+    if (email === '') {
+        showError(emailField, 'Email è obbligatoria');
+        return false;
     }
 
-    if (passwordField.value === '') {
+     if (!isValidEmail(email)) {
+        showError(emailField, 'Inserisci un indirizzo email valido');
+        return false;
+    }
+
+    removeError(emailField);
+    return true;
+}
+
+function validatePassword() {
+    const password = passwordField.value
+
+    if (password === '') {
         showError(passwordField, 'Password è obbligatoria');
-        isValid = false;
-    } else if (!isValidPassword(passwordField.value)) {
-        showError(passwordField, 'Password non valida. Verifica i requisiti.');
-        isValid = false;
-    } else {
-        removeError(passwordField);
+        return false;
     }
 
-    if (confirmField.value === '') {
+    if (!isValidPassword(password)) {
+        showError(passwordField, 'Password non valida. Verifica i requisiti');
+        return false;
+    }
+
+    removeError(passwordField);
+    return true;
+}
+
+function validateConfirmPassword() {
+    const password = passwordField.value
+    const confirmPassword = confirmField.value
+
+    if (confirmPassword === '') {
         showError(confirmField, 'Conferma password è obbligatoria');
-        isValid = false;
-    } else if (confirmField.value !== passwordField.value) {
+        return false;
+    }
+
+    if (confirmPassword !== password) {
         showError(confirmField, 'Le password non corrispondono');
-        isValid = false;
-    } else {
-        removeError(confirmField);
+        return false;
     }
 
-    return isValid;
+    removeError(confirmField);
+    return true;
 }
 
-function onResponse(data) {
-    console.log(data);
-    if (data.success) {
-        window.location.href = '/pages/login/login.php';
-    } else {
-        onError(data.message);
-    }
+
+function validate() {
+
+    const isUsernameValid = validateUsername();
+    const isEmailValid = validateEmail();
+    const isPasswordValid = validatePassword();
+    const isConfirmPasswordValid = validateConfirmPassword();
+
+    return isUsernameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid;
 }
 
-function onError(message) {
-    console.error('Errore:', message);
+function setFormLoading(loading) {
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    const inputs = loginForm.querySelectorAll('input');
 
-    const errorMessage = document.querySelector(".error-message");
-    if (errorMessage) {
-        errorMessage.innerHTML = "";
-        errorMessage.classList.remove("hidden");
-
-        const messageText = document.createElement("span");
-        messageText.textContent = message;
-
-        errorMessage.appendChild(messageText);
+    if (loading) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Registrazione in corso...';
+        inputs.forEach(input => input.disabled = true);
+    } else {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Registrati';
+        inputs.forEach(input => input.disabled = false);
     }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function handleRegister(e) {
     e.preventDefault();
 
+    hideGlobalError();
+
     if (!validate()) {
+        showGlobalError('Correggi i campi evidenziati prima di continuare');
         return;
     }
+
+    setFormLoading(true);
 
     const csrf_token = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -110,13 +115,39 @@ function handleRegister(e) {
     formData.append('password', document.getElementById('password').value);
     formData.append('password_confirm', document.getElementById('password_confirm').value);
     formData.append('password_confirm', document.getElementById('password_confirm').value);
-    formData.append('_token', csrf_token); // Campo _token richiesto da Laravel
+    formData.append('_token', csrf_token);
 
     fetch('/register', {
         method: 'POST',
         body: formData
     })
-        .then(response => response.json())
         .then(onResponse)
-        .catch(onError);
+        .then(onJsonResponse)
+        .catch(onError)
+        .finally(() => {
+            setFormLoading(false);
+        });
 }
+
+const usernameField = document.getElementById('username');
+const emailField = document.getElementById('email');
+const passwordField = document.getElementById('password');
+if (passwordField) {
+    passwordField.addEventListener('input', function () {
+        validatePasswordStrength(passwordField.value);
+    });
+}
+
+const confirmField = document.getElementById('password_confirm');
+if (confirmField && passwordField) {
+    confirmField.addEventListener('input', function () {
+        if (confirmField.value !== passwordField.value) {
+            showError(confirmField, 'Le password non corrispondono');
+        } else {
+            removeError(confirmField);
+        }
+    });
+}
+
+const registerForm = document.getElementById('registerForm');
+registerForm.addEventListener('submit', handleRegister);
