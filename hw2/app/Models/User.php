@@ -31,6 +31,17 @@ class User extends Model
         return $this->hasOne(UserSettings::class);
     }
 
+    public function interests()
+    {
+        return $this->belongsToMany(Interest::class, 'user_interests', 'user_id', 'interest_id')
+                    ->withPivot('added_at');
+    }
+
+    public function userInterests()
+    {
+        return $this->hasMany(UserInterest::class);
+    }
+
     public function register($username, $email, $password, $nome, $cognome)
     {
         if ($this->isUserExist($username, $email)) {

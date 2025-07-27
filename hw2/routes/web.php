@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\InterestController;
 
 // Route pubbliche per autenticazione
 Route::get('/', [HomeController::class, 'index']);
@@ -29,9 +30,14 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
 
     Route::get('/account', [AccountController::class, 'index']);
+    Route::get('/api/account/profile', [AccountController::class, 'getProfileData']);
+    
+     Route::get('/api/interests/categories', [InterestController::class, 'getCategories']);
+    Route::get('/api/interests', [InterestController::class, 'getInterests']);
+    Route::get('/api/interests/user', [InterestController::class, 'getUserInterests']);
+    Route::post('/api/interests/toggle', [InterestController::class, 'toggleInterest']);
     // Route::get('/account/profile', [AccountController::class, 'profile']);
     // Route::post('/account/profile', [AccountController::class, 'updateProfile']);
     // Route::get('/account/settings', [AccountController::class, 'settings']);
     // Route::post('/account/settings', [AccountController::class, 'updateSettings']);
-    Route::get('/api/account/profile', [AccountController::class, 'getProfileData']);
 });

@@ -7,7 +7,7 @@ let appState = {
 };
 
 function fetchCategories(callback) {
-    fetch('/api/account/profile/interests/getCategories.php')
+    fetch('/api/interests/categories')
         .then(result => result.json())
         .then(data => {
             if (!data.success) {
@@ -30,8 +30,8 @@ function fetchInterests(category, callback) {
     }
 
     const url = category === 'all'
-        ? '/api/account/profile/interests/getInterests.php'
-        : `/api/account/profile/interests/getInterests.php?category=${category}`;
+        ? '/api/interests'
+        : `/api/interests?category=${category}`;
 
     fetch(url)
         .then(result => result.json())
@@ -56,8 +56,8 @@ function fetchUserInterests(category, callback) {
     }
 
     const url = category === 'all'
-        ? '/api/account/profile/interests/getUserInterests.php?'
-        : `/api/account/profile/interests/getUserInterests.php?category=${category}`;
+        ? '/api/interests/user'
+        : `/api/interests/user?category=${category}`;
 
     fetch(url)
         .then(result => result.json())
@@ -79,7 +79,13 @@ function toggleInterest(interestId, callback) {
     const formData = new FormData();
     formData.append('interestId', interestId);
     
-    fetch('/api/account/profile/interests/toggleInterest.php', {
+    // Aggiungi il token CSRF per Laravel
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (csrfToken) {
+        formData.append('_token', csrfToken.getAttribute('content'));
+    }
+    
+    fetch('/api/interests/toggle', {
         method: 'POST',
         body: formData
     })
