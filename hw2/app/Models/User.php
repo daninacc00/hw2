@@ -13,12 +13,23 @@ class User extends Model
         'email', 
         'password_hash',
         'first_name',
-        'last_name'
+        'last_name',
+        'account_status'
     ];
 
     protected $hidden = [
         'password_hash',
     ];
+
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    public function settings()
+    {
+        return $this->hasOne(UserSettings::class);
+    }
 
     public function register($username, $email, $password, $nome, $cognome)
     {
@@ -36,6 +47,9 @@ class User extends Model
         $user->last_name = $cognome;
 
         if ($user->save()) {
+            $user->profile()->create([]);
+            $user->settings()->create([]);
+
             return ['success' => true, 'message' => 'Registrazione completata con successo'];
         } else {
             return ['success' => false, 'message' => 'Errore durante la registrazione'];

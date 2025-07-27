@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\AuthController;
 use App\Http\Middleware\AuthMiddleware;
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AccountController;
 
 // Route pubbliche per autenticazione
 Route::get('/', [HomeController::class, 'index']);
@@ -25,4 +27,11 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     });
     
     Route::get('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/account', [AccountController::class, 'index']);
+    // Route::get('/account/profile', [AccountController::class, 'profile']);
+    // Route::post('/account/profile', [AccountController::class, 'updateProfile']);
+    // Route::get('/account/settings', [AccountController::class, 'settings']);
+    // Route::post('/account/settings', [AccountController::class, 'updateSettings']);
+    Route::get('/api/account/profile', [AccountController::class, 'getProfileData']);
 });

@@ -1,7 +1,6 @@
 function onError(message) {
     console.error('Errore login:', message);
     showGlobalError(message);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function onResponse(response) {
@@ -41,7 +40,7 @@ function showGlobalError(message) {
         const errorText = document.createElement("span");
         errorText.textContent = message;
 
-        errorContainer.innerHTML = ''; // Pulisci errori precedenti
+        errorContainer.innerHTML = '';
         errorContainer.append(errorText);
         errorContainer.classList.remove('hidden');
     }

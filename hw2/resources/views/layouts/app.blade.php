@@ -3,10 +3,10 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title')</title>
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Nike') }}</title>
     <link rel="icon" type="image/x-icon" sizes="32x32" href="{{ asset('favicon.ico') }}" />
 
     <!-- Font -->

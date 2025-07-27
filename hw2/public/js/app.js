@@ -29,13 +29,13 @@ closeSearch.addEventListener("click", onCloseSearch);
 function handleAction(action) {
     switch (action) {
         case 'profile':
-            window.location.href = "/pages/account/account.php";
+            window.location.href = "/account";
             break;
         case 'favorites':
-            window.location.href = "/pages/shop/favorites/favorites.php";
+            window.location.href = "/favorites";
             break;
         case 'logout':
-            window.location.href = "/pages/logout.php";
+            window.location.href = "/logout";
             break;
         default:
             break;

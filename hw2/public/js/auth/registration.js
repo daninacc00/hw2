@@ -132,7 +132,7 @@ function handleRegister(e) {
         .then(onResponse)
         .then(onJsonResponse)
         .catch(onError)
-        .finally(() => {
+        .finally(function (){
             setFormLoading(false);
         });
 }

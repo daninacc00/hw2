@@ -61,6 +61,10 @@ button {
     text-transform: none;
 }
 
+.hidden{
+    display: none;
+}
+
 .link-item {
     cursor: pointer;
 }
