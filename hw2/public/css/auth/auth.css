@@ -212,3 +212,9 @@ input.error {
     background-color: #ccc;
     cursor: not-allowed;
 }
+
+.terms-text {
+    margin: 40px 0;
+    color: rgb(117, 117, 117);
+    text-align: start;
+}

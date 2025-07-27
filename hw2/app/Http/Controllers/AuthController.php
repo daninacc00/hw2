@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -13,7 +12,7 @@ class AuthController extends Controller
         if (session('user_id')) {
             return redirect('/');
         }
-        
+
         return view('auth.login');
     }
 
@@ -22,12 +21,12 @@ class AuthController extends Controller
         if (session('user_id')) {
             return redirect('/');
         }
-        
+
         return view('auth.register');
     }
 
     public function login(Request $request)
-    {    
+    {
         if ($request->isMethod('post')) {
             $username = $request->input('username');
             $password = $request->input('password');
