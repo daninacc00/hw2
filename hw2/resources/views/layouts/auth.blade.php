@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/auth/auth.css') }}">
     @yield('page-styles')
 
+    <script src="{{ asset('js/auth/auth.js') }}" defer></script>
     <script src="{{ asset('js/auth/validation.js') }}" defer></script>
     @yield('page-scripts')
 </head>

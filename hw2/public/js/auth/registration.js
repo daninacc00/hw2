@@ -79,8 +79,8 @@ function validate() {
 }
 
 function setFormLoading(loading) {
-    const submitBtn = loginForm.querySelector('button[type="submit"]');
-    const inputs = loginForm.querySelectorAll('input');
+    const submitBtn = registerForm.querySelector('button[type="submit"]');
+    const inputs = registerForm.querySelectorAll('input');
 
     if (loading) {
         submitBtn.disabled = true;
@@ -90,6 +90,14 @@ function setFormLoading(loading) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Registrati';
         inputs.forEach(input => input.disabled = false);
+    }
+}
+
+function onJsonResponse(data) {
+    if (data.success) {
+        window.location.href = '/login';
+    } else {
+        onError(data.message);
     }
 }
 

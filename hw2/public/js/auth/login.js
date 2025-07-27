@@ -49,6 +49,14 @@ function setFormLoading(loading) {
     }
 }
 
+function onJsonResponse(data) {
+    if (data.success) {
+        window.location.href = '/';
+    } else {
+        onError(data.message);
+    }
+}
+
 function handleLogin(e) {
     e.preventDefault();
 

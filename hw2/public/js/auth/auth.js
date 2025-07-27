@@ -4,14 +4,6 @@ function onError(message) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function onJsonResponse(data) {
-    if (data.success) {
-        window.location.href = '/';
-    } else {
-        onError(data.message);
-    }
-}
-
 function onResponse(response) {
     if (response.status === 419) {
         throw new Error('Sessione scaduta. Ricarica la pagina e riprova.');
@@ -40,5 +32,25 @@ function removeError(input) {
     const existingError = input.parentNode.querySelector('.error-text');
     if (existingError) {
         existingError.remove();
+    }
+}
+
+function showGlobalError(message) {
+    const errorContainer = document.querySelector('.error-message');
+    if (errorContainer) {
+        const errorText = document.createElement("span");
+        errorText.textContent = message;
+
+        errorContainer.innerHTML = ''; // Pulisci errori precedenti
+        errorContainer.append(errorText);
+        errorContainer.classList.remove('hidden');
+    }
+}
+
+function hideGlobalError() {
+    const errorContainer = document.querySelector('.error-message');
+    if (errorContainer) {
+        errorContainer.classList.add('hidden');
+        errorContainer.innerHTML = '';
     }
 }
