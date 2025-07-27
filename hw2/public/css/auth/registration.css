@@ -1,0 +1,79 @@
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 16px 12px;
+        border: 1px solid #707072;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: inherit;
+        background-color: #ffffff;
+        transition: border-color 0.3s ease;
+        outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+        border-color: #111;
+    }
+
+    .terms-text {
+        margin: 40px 0;
+        color: rgb(117, 117, 117);
+        text-align: start;
+    }
+
+    .password-requirements {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #8d8d8d;
+        text-align: left;
+    }
+
+    .password-requirements p {
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .password-requirements ul {
+        list-style: none;
+        margin-left: 0;
+    }
+
+    .password-requirements ul li {
+        position: relative;
+        padding-left: 8px;
+        margin-bottom: 4px;
+        font-size: 11px;
+    }
+
+    .password-requirements ul li i {
+        color: #ff6b6b;
+    }
+
+    .password-requirements ul li.valid i {
+        color: #00d4aa;
+    }
+
+    .name-row {
+        display: flex;
+        gap: 12px;
+    }
+
+    .name-row .form-group {
+        flex: 1;
+    }
+
+
+    @media (max-width: 768px) {
+        .auth-container {
+            padding: 40px 30px;
+            max-width: 90%;
+        }
+
+        .name-row {
+            flex-direction: column;
+            gap: 0;
+        }
+    }

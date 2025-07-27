@@ -2,47 +2,83 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+class User extends Model
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    protected $table = 'users';
+    
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'username',
+        'email', 
+        'password_hash',
+        'first_name',
+        'last_name'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password_hash',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function register($username, $email, $password, $nome, $cognome)
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        if ($this->isUserExist($username, $email)) {
+            return ['success' => false, 'message' => 'Username o email già esistenti'];
+        }
+
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+        $user = new User();
+        $user->username = $username;
+        $user->email = $email;
+        $user->password_hash = $passwordHash;
+        $user->first_name = $nome;
+        $user->last_name = $cognome;
+
+        if ($user->save()) {
+            return ['success' => true, 'message' => 'Registrazione completata con successo'];
+        } else {
+            return ['success' => false, 'message' => 'Errore durante la registrazione'];
+        }
+    }
+
+    public function authenticateUser($username, $password)
+    {
+        $user = User::where(function($query) use ($username) {
+            $query->where('username', $username)
+                  ->orWhere('email', $username);
+        })
+        ->where('account_status', 0)
+        ->first();
+
+        if ($user) {
+            if (password_verify($password, $user->password_hash)) {
+                $this->updateLastLogin($user->id);
+                
+                $userData = $user->toArray();
+                unset($userData['password_hash']);
+
+                return ['success' => true, 'utente' => $userData];
+            } else {
+                return ['success' => false, 'message' => 'Credenziali non valide'];
+            }
+        } else {
+            return ['success' => false, 'message' => 'Credenziali non valide'];
+        }
+    }
+
+    private function isUserExist($username, $email)
+    {
+        $count = User::where('username', $username)
+                     ->orWhere('email', $email)
+                     ->count();
+
+        return $count > 0;
+    }
+
+    private function updateLastLogin($idUtente)
+    {
+        User::where('id', $idUtente)
+            ->update(['last_login' => now()]);
     }
 }

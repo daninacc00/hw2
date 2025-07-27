@@ -1,0 +1,47 @@
+@extends('layouts.auth')
+
+@section('title', 'Login')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+@section('page-styles')
+    <link rel="stylesheet" href="{{ asset('css/auth/login.css') }}">
+@endsection
+
+@section('page-scripts')
+    <script src="{{ asset('js/auth/login.js') }}" defer></script>
+@endsection
+
+@section('heading')
+    Accedi con la tua e-mail
+@endsection
+
+@section('auth-links')
+    Non hai un account? <a href="/register">Registrati ora</a>
+@endsection
+
+@section('content')
+    <form id="loginForm" method="POST" action="/login">
+        @csrf
+        <div class="form-group">
+            <label for="username">Email*</label>    
+            <input
+                type="text"
+                id="username"
+                name="username"
+                required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password*</label>    
+            <input
+                type="password"
+                id="password"
+                name="password"
+                required>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Continua</button>
+        </div>
+    </form>
+@endsection
