@@ -1,132 +1,114 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\Section;
+use App\Models\Sport;
+use App\Models\Color;
+use App\Models\Size;
 
-class Product extends Model
+class ShopController extends Controller
 {
-    protected $table = 'products';
-
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'short_description',
-        'price',
-        'original_price',
-        'discount_percentage',
-        'category_id',
-        'section_id',
-        'sport_id',
-        'gender',
-        'shoe_height',
-        'is_bestseller',
-        'is_new_arrival',
-        'is_on_sale',
-        'stock_quantity',
-        'rating',
-        'rating_count',
-        'status'
-    ];
-
-    protected $casts = [
-        'price' => 'decimal:2',
-        'original_price' => 'decimal:2',
-        'rating' => 'decimal:2',
-        'is_bestseller' => 'boolean',
-        'is_new_arrival' => 'boolean',
-        'is_on_sale' => 'boolean'
-    ];
-
-    public function category()
+    public function index(Request $request)
     {
-        return $this->belongsTo(Category::class);
+        return view('shop');
     }
 
-    public function section()
+    public function getProducts(Request $request)
     {
-        return $this->belongsTo(Section::class);
-    }
+        $filters = $this->parseFilters($request);
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = min(50, max(1, (int) $request->get('limit', 20)));
 
-    public function sport()
-    {
-        return $this->belongsTo(Sport::class);
-    }
-
-    public function images()
-    {
-        return $this->hasMany(ProductImage::class);
-    }
-
-    public function colors()
-    {
-        return $this->belongsToMany(Color::class, 'product_colors');
-    }
-
-    public function sizes()
-    {
-        return $this->belongsToMany(Size::class, 'product_sizes')->withPivot('stock_quantity');
-    }
-
-    public function favorites()
-    {
-        return $this->hasMany(Favorite::class);
-    }
-
-    public function cart()
-    {
-        return $this->hasMany(Cart::class);
-    }
-
-    public function primaryImage()
-    {
-        return $this->hasOne(ProductImage::class)->where('is_primary', true);
-    }
-
-    public function getProductById($productId, $userId = null)
-    {
-        $product = Product::with(['colors', 'sizes', 'primaryImage'])
-            ->where('id', $productId)
-            ->first();
-
-        if (!$product) {
-            return [
-                'success' => false,
-                'message' => 'Prodotto non trovato'
-            ];
-        }
-
-        $productData = $product->toArray();
-
-        if ($product->primaryImage) {
-            $productData['image_url'] = $product->primaryImage->image_url;
-        }
-
-        if ($userId) {
-            $productData['isInCart'] = Cart::where('product_id', $productId)
-                ->where('user_id', $userId)
-                ->exists();
-
-            $productData['isFavorite'] = Favorite::where('product_id', $productId)
-                ->where('user_id', $userId)
-                ->exists();
-        }
-
-        return [
+        $result = $this->buildProductQuery($filters, $page, $limit);
+        
+        return response()->json([
             'success' => true,
-            'data' => $productData
-        ];
+            'data' => $result
+        ]);
     }
 
-    public function getProducts($filters = [], $page = 1, $limit = 20)
+    public function getProduct(Request $request)
+    {
+        $productId = $request->query('id');
+        $userId = session('user_id');
+
+        if (!$productId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ID prodotto mancante'
+            ]);
+        }
+
+        $product = new Product();
+        $result = $product->getProductById($productId, $userId);
+        
+        return response()->json($result);
+    }
+
+    private function parseFilters(Request $request)
+    {
+        $filters = [];
+
+        // Filtri semplici
+        if ($request->has('section')) $filters['section'] = $request->get('section');
+        if ($request->has('sort')) $filters['sort'] = $request->get('sort');
+        if ($request->has('shoe_height')) $filters['shoe_height'] = $request->get('shoe_height');
+
+        // Filtri array
+        if ($request->has('gender')) {
+            $gender = $request->get('gender');
+            $filters['gender'] = is_array($gender) ? $gender : [$gender];
+        }
+
+        if ($request->has('sport')) {
+            $sport = $request->get('sport');
+            $filters['sport'] = is_array($sport) ? $sport : [$sport];
+        }
+
+        if ($request->has('colors')) {
+            $colors = $request->get('colors');
+            $filters['colors'] = is_array($colors) ? $colors : [$colors];
+        }
+
+        if ($request->has('sizes')) {
+            $sizes = $request->get('sizes');
+            $filters['sizes'] = is_array($sizes) ? $sizes : [$sizes];
+        }
+
+        // Filtri prezzo
+        if ($request->has('min_price') && $request->get('min_price') !== '') {
+            $filters['min_price'] = (float) $request->get('min_price');
+        }
+        if ($request->has('max_price') && $request->get('max_price') !== '') {
+            $filters['max_price'] = (float) $request->get('max_price');
+        }
+
+        // Filtri booleani
+        if ($request->has('is_on_sale')) {
+            $filters['is_on_sale'] = ($request->get('is_on_sale') === 'true' || $request->get('is_on_sale') === '1');
+        }
+        if ($request->has('is_bestseller')) {
+            $filters['is_bestseller'] = ($request->get('is_bestseller') === 'true' || $request->get('is_bestseller') === '1');
+        }
+        if ($request->has('is_new_arrival')) {
+            $filters['is_new_arrival'] = ($request->get('is_new_arrival') === 'true' || $request->get('is_new_arrival') === '1');
+        }
+
+        return $filters;
+    }
+
+    private function buildProductQuery($filters, $page, $limit)
     {
         $query = Product::with(['category', 'section', 'sport', 'primaryImage', 'colors'])
             ->where('status', 0);
 
         // Applicazione filtri
         if (isset($filters['section'])) {
-            $query->whereHas('section', function ($q) use ($filters) {
+            $query->whereHas('section', function($q) use ($filters) {
                 $q->where('slug', $filters['section']);
             });
         }
@@ -136,19 +118,19 @@ class Product extends Model
         }
 
         if (isset($filters['sport']) && !empty($filters['sport'])) {
-            $query->whereHas('sport', function ($q) use ($filters) {
+            $query->whereHas('sport', function($q) use ($filters) {
                 $q->whereIn('slug', $filters['sport']);
             });
         }
 
         if (isset($filters['colors']) && !empty($filters['colors'])) {
-            $query->whereHas('colors', function ($q) use ($filters) {
+            $query->whereHas('colors', function($q) use ($filters) {
                 $q->whereIn('hex_code', $filters['colors']);
             });
         }
 
         if (isset($filters['sizes']) && !empty($filters['sizes'])) {
-            $query->whereHas('sizes', function ($q) use ($filters) {
+            $query->whereHas('sizes', function($q) use ($filters) {
                 $q->whereIn('value', $filters['sizes']);
             });
         }
@@ -190,7 +172,7 @@ class Product extends Model
         $products = $query->offset($offset)->limit($limit)->get();
 
         // Formattazione risultati
-        $formattedProducts = $products->map(function ($product) {
+        $formattedProducts = $products->map(function($product) {
             return [
                 'id' => $product->id,
                 'name' => $product->name,

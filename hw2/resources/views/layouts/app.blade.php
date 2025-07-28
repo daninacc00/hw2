@@ -176,7 +176,7 @@
                 </div>
 
                 <div class="icon-button cart-button">
-                    <a href="/pages/shop/cart/cart.php" class="link-item cart-link">
+                    <a href="/account/cart" class="link-item cart-link">
                         <img src="/assets/icons/cart-icon.svg" alt="Carrello">
                         <span
                             class="counter-badge  <?php echo "hidden" ?>"

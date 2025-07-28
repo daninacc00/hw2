@@ -256,7 +256,7 @@ function showAddToCartModal(productId, buttonElement) {
         if (e.target === modal) document.body.removeChild(modal);
     });
 
-    fetch(`/api/product?id=${productId}`)
+    fetch(`/api/favorites/product?id=${productId}`)
         .then(response => response.json())
         .then(result => {
             if (result.success) {
