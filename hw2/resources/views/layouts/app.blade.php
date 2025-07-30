@@ -75,11 +75,11 @@
                                     <li class="action-item" data-action="favorites">
                                         <span class="action-text">Preferiti</span>
                                     </li>
-                                    <li class="action-item" data-action="newsletter">
-                                        <span class="action-text">Posta in arrivo</span>
+                                    <li class="action-item" data-action="cart">
+                                        <span class="action-text">Carrello</span>
                                     </li>
-                                    <li class="action-item" data-action="experience">
-                                        <span class="action-text">Esperienze</span>
+                                    <li class="action-item" data-action="orders">
+                                        <span class="action-text">Ordini</span>
                                     </li>
                                     <li class="action-item" data-action="settings">
                                         <span class="action-text">Impostazioni account</span>

@@ -40,29 +40,31 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     
     Route::get('/logout', [AuthController::class, 'logout']);
 
+    // Account routes
     Route::get('/account', [AccountController::class, 'index']);
+    Route::get('/account/settings', [AccountController::class, 'settings']);
     Route::get('/api/account/profile', [AccountController::class, 'getProfileData']);
+    Route::post('/api/account/settings', [AccountController::class, 'updateSettings']);
+    Route::post('/api/account/password', [AccountController::class, 'updatePassword']);
     
+    // Interest routes
     Route::get('/api/interests/categories', [InterestController::class, 'getCategories']);
     Route::get('/api/interests', [InterestController::class, 'getInterests']);
     Route::get('/api/interests/user', [InterestController::class, 'getUserInterests']);
     Route::post('/api/interests/toggle', [InterestController::class, 'toggleInterest']);
     
+    // Favorites routes
     Route::get('/account/favorites', [FavoritesController::class, 'index']);
     Route::get('/api/favorites/get', [FavoritesController::class, 'getFavorites']);
     Route::post('/api/favorites/add', [FavoritesController::class, 'addToFavorites']);
     Route::post('/api/favorites/remove', [FavoritesController::class, 'removeFromFavorites']);
     Route::get('/api/favorites/product', [FavoritesController::class, 'getProduct']);
     
+    // Cart routes
     Route::get('/account/cart', [CartController::class, 'index']);
     Route::get('/api/cart/get', [CartController::class, 'getCart']);
     Route::post('/api/cart/add', [CartController::class, 'addToCart']);
     Route::post('/api/cart/update', [CartController::class, 'updateQuantity']);
     Route::post('/api/cart/remove-item', [CartController::class, 'removeCartItem']);
     Route::post('/api/cart/remove', [CartController::class, 'removeFromCart']);
-    
-    // Route::get('/account/profile', [AccountController::class, 'profile']);
-    // Route::post('/account/profile', [AccountController::class, 'updateProfile']);
-    // Route::get('/account/settings', [AccountController::class, 'settings']);
-    // Route::post('/account/settings', [AccountController::class, 'updateSettings']);
 });

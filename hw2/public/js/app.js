@@ -34,6 +34,15 @@ function handleAction(action) {
         case 'favorites':
             window.location.href = "/account/favorites";
             break;
+        case 'cart':
+            window.location.href = "/account/cart";
+            break;
+        case 'orders':
+            window.location.href = "/account/orders";
+            break;
+        case 'settings':
+            window.location.href = "/account/settings";
+            break;
         case 'logout':
             window.location.href = "/logout";
             break;
@@ -141,7 +150,7 @@ function updateFavoritesCounter(quantity) {
 function openMobileMenu() {
     const menu = document.querySelector('#mobile-menu');
     const overlay = document.querySelector('#mobile-menu-overlay');
-    
+
     // Aggiungi classi usando classList.add come nelle slide
     menu.classList.remove('hidden');
     overlay.classList.remove('hidden');
@@ -151,7 +160,7 @@ function openMobileMenu() {
 function closeMobileMenu() {
     const menu = document.querySelector('#mobile-menu');
     const overlay = document.querySelector('#mobile-menu-overlay');
-    
+
     // Rimuovi classi usando classList.remove come nelle slide
     menu.classList.add('hidden');
     overlay.classList.add('hidden');

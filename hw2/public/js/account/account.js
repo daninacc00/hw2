@@ -8,6 +8,11 @@ function handleClickTab(e, link) {
         return;
     }
     
+    if (tabName === 'settings') {
+        window.location.href = '/account/settings';
+        return;
+    }
+    
     e.preventDefault();
     switchTab(tabName);
 }
@@ -34,7 +39,6 @@ function showTab(tabName) {
 }
 
 function hideTab(tabName) {
-    
     const tabContent = document.getElementById(`tab-${tabName}`);
     if (tabContent) {
         tabContent.classList.remove('active');

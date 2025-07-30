@@ -427,6 +427,7 @@ function checkAddToCartButton() {
     }
 }
 
+// FUNZIONE PRINCIPALE CORRETTA
 function addToCart() {
     if (!selectedSizeId) {
         showErrorMessage('Seleziona una taglia prima di aggiungere al carrello');
@@ -445,22 +446,24 @@ function addToCart() {
     formData.append('sizeId', selectedSizeId);
     formData.append('quantity', 1);
 
+    // ENDPOINT CORRETTO basato sulla struttura del progetto
     fetch('/api/cart/add', {
         method: 'POST',
         body: formData,
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-        },
-        redirect: 'manual' // Importante per gestire i redirect manualmente
+        }
     })
         .then(response => {
-            // Controlla se è un redirect
-            if (response.type === 'opaqueredirect' || response.status === 302 || response.redirected) {
-                window.location.href = '/login';
-                return;
-            }
+            console.log('Response status:', response.status);
             
+            // Gestione risposta non-ok
             if (!response.ok) {
+                // Se è un 401/403, probabilmente non autenticato
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login';
+                    return;
+                }
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             
@@ -468,6 +471,8 @@ function addToCart() {
         })
         .then(result => {
             if (!result) return; // Caso redirect
+            
+            console.log('Add to cart result:', result);
             
             if (result.success) {
                 updateCartCounter(1);
@@ -524,26 +529,19 @@ function addFavorite() {
         body: formData,
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-        },
-        redirect: 'manual' // Importante: non seguire automaticamente i redirect
+        }
     })
         .then(response => {
-            // Controlla se è un redirect (302, 301, etc.)
-            if (response.type === 'opaqueredirect' || response.status === 302 || response.redirected) {
-                // L'utente non è autenticato, redirect al login
-                window.location.href = '/login';
-                return;
-            }
-            
-            // Se non è un redirect, processa la risposta JSON
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login';
+                    return;
+                }
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
             return response.json();
         })
         .then(result => {
-            // Se result è undefined (caso redirect), esci
             if (!result) return;
             
             if (result.success) {
@@ -586,26 +584,19 @@ function removeFavorite() {
         body: formData,
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-        },
-        redirect: 'manual' // Importante: non seguire automaticamente i redirect
+        }
     })
         .then(response => {
-            // Controlla se è un redirect (302, 301, etc.)
-            if (response.type === 'opaqueredirect' || response.status === 302 || response.redirected) {
-                // L'utente non è autenticato, redirect al login
-                window.location.href = '/login';
-                return;
-            }
-            
-            // Se non è un redirect, processa la risposta JSON
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login';
+                    return;
+                }
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
             return response.json();
         })
         .then(result => {
-            // Se result è undefined (caso redirect), esci
             if (!result) return;
             
             if (result.success) {

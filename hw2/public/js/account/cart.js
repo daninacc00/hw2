@@ -2,12 +2,29 @@ loadCartItems();
 
 function loadCartItems() {
     fetch("/api/cart/get")
-        .then(response => response.json())
+        .then(response => {
+            // Controllo response.ok prima di processare JSON
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    // Utente non autenticato
+                    showAuthRequiredState('Devi essere loggato per accedere al tuo carrello');
+                    return;
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            if (!data) return; // Caso redirect
+            
             if (data.success) {
                 renderCart(data.data);
             } else {
-                showAuthRequiredState(data.message);
+                if (data.error_type === 'auth_required') {
+                    showAuthRequiredState(data.message);
+                } else {
+                    showErrorMessage(data.message || 'Errore nel caricamento del carrello');
+                }
             }
         })
         .catch(error => {
@@ -208,14 +225,29 @@ function removeFromCart(productId) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login';
+                    return;
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            if (!data) return; // Caso redirect
+            
             if (data.success) {
                 showSuccessMessage('Prodotto rimosso dal carrello');
                 updateCartCounter(-data.deleted_count);
                 loadCartItems();
             } else {
-                showErrorMessage(data.message || 'Errore nella rimozione del prodotto');
+                if (data.error_type === 'auth_required') {
+                    window.location.href = '/login';
+                } else {
+                    showErrorMessage(data.message || 'Errore nella rimozione del prodotto');
+                }
             }
         })
         .catch(error => {
@@ -241,13 +273,28 @@ function updateQuantity(cartItemId, newQuantity) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login';
+                    return;
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            if (!data) return; // Caso redirect
+            
             if (data.success) {
                 showSuccessMessage('Quantità aggiornata');
                 loadCartItems();
             } else {
-                showErrorMessage(data.message || 'Errore nell\'aggiornamento della quantità');
+                if (data.error_type === 'auth_required') {
+                    window.location.href = '/login';
+                } else {
+                    showErrorMessage(data.message || 'Errore nell\'aggiornamento della quantità');
+                }
             }
         })
         .catch(error => {
@@ -267,14 +314,29 @@ function removeCartItem(cartItemId) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login';
+                    return;
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            if (!data) return; // Caso redirect
+            
             if (data.success) {
                 showSuccessMessage('Elemento rimosso dal carrello');
                 updateCartCounter(-1);
                 loadCartItems();
             } else {
-                showErrorMessage(data.message || 'Errore nella rimozione');
+                if (data.error_type === 'auth_required') {
+                    window.location.href = '/login';
+                } else {
+                    showErrorMessage(data.message || 'Errore nella rimozione');
+                }
             }
         })
         .catch(error => {
@@ -365,3 +427,15 @@ function showMessage(message, type) {
 function formatPrice(price) {
     return '€' + parseFloat(price).toFixed(2).replace('.', ',');
 }
+
+// Funzione globale per aggiornare il contatore carrello
+function updateCartCounter(delta) {
+    const counter = document.getElementById('cart-counter');
+    if (counter) {
+        const current = parseInt(counter.textContent) || 0;
+        const newValue = Math.max(0, current + delta);
+        counter.textContent = newValue;
+        counter.classList.toggle('hidden', newValue === 0);
+    }
+}
+    

@@ -103,11 +103,11 @@ class CartController extends Controller
             ]);
         }
 
+        // Validazione input
         $productId = $request->input('productId');
         $colorId = $request->input('colorId');
         $sizeId = $request->input('sizeId');
         $quantity = $request->input('quantity', 1);
-        $userId = Auth::id();
 
         if (!$productId || !$colorId || !$sizeId || $quantity <= 0) {
             return response()->json([
@@ -197,7 +197,6 @@ class CartController extends Controller
 
         $cartItemId = $request->input('cartItemId');
         $quantity = $request->input('quantity');
-        $userId = Auth::id();
 
         if (!$cartItemId || !$quantity || $quantity <= 0) {
             return response()->json([
@@ -267,7 +266,6 @@ class CartController extends Controller
         }
 
         $cartItemId = $request->input('cartItemId');
-        $userId = Auth::id();
 
         if (!$cartItemId) {
             return response()->json([
@@ -317,7 +315,6 @@ class CartController extends Controller
         }
 
         $productId = $request->input('productId');
-        $userId = Auth::id();
 
         if (!$productId) {
             return response()->json([
