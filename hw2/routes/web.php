@@ -11,9 +11,12 @@ use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\UserController;
 
 // Route pubbliche per autenticazione
 Route::get('/', [HomeController::class, 'index']);
+Route::get('/slider-images', [HomeController::class, 'getSliderImages']);
+
 Route::get('/login', [AuthController::class, 'showLogin']);
 Route::get('/register', [AuthController::class, 'showRegister']);
 
@@ -33,12 +36,14 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     Route::get('/profile', function () {
         return view('profile');
     });
-    
+
     Route::get('/dashboard', function () {
         return view('dashboard');
     });
-    
+
     Route::get('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/api/user/profile', [UserController::class, 'getProfile']);
 
     // Account routes
     Route::get('/account', [AccountController::class, 'index']);
@@ -46,20 +51,20 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     Route::get('/api/account/profile', [AccountController::class, 'getProfileData']);
     Route::post('/api/account/settings', [AccountController::class, 'updateSettings']);
     Route::post('/api/account/password', [AccountController::class, 'updatePassword']);
-    
+
     // Interest routes
     Route::get('/api/interests/categories', [InterestController::class, 'getCategories']);
     Route::get('/api/interests', [InterestController::class, 'getInterests']);
     Route::get('/api/interests/user', [InterestController::class, 'getUserInterests']);
     Route::post('/api/interests/toggle', [InterestController::class, 'toggleInterest']);
-    
+
     // Favorites routes
     Route::get('/account/favorites', [FavoritesController::class, 'index']);
     Route::get('/api/favorites/get', [FavoritesController::class, 'getFavorites']);
     Route::post('/api/favorites/add', [FavoritesController::class, 'addToFavorites']);
     Route::post('/api/favorites/remove', [FavoritesController::class, 'removeFromFavorites']);
     Route::get('/api/favorites/product', [FavoritesController::class, 'getProduct']);
-    
+
     // Cart routes
     Route::get('/account/cart', [CartController::class, 'index']);
     Route::get('/api/cart/get', [CartController::class, 'getCart']);

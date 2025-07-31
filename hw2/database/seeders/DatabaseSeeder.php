@@ -10,6 +10,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             InterestSeeder::class,
+            EcommerceSeeder::class,
+            SliderImagesSeeder::class
         ]);
     }
 }

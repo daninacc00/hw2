@@ -60,41 +60,10 @@
                         </a>
                         <div class="vertical-line"></div>
                     </li>
-                    <li class="list-item">
-                        @if(session('user_id'))
-                        <div class="tooltip-container">
-                            <p class="link-text">
-                                Ciao, {{ session('user_first_name') }}
-                            </p>
-                            <div class="tooltip">
-                                <h3 class="tooltip-title">Account</h3>
-                                <ul class="action-list">
-                                    <li class="action-item" data-action="profile">
-                                        <span class="action-text">Profilo</span>
-                                    </li>
-                                    <li class="action-item" data-action="favorites">
-                                        <span class="action-text">Preferiti</span>
-                                    </li>
-                                    <li class="action-item" data-action="cart">
-                                        <span class="action-text">Carrello</span>
-                                    </li>
-                                    <li class="action-item" data-action="orders">
-                                        <span class="action-text">Ordini</span>
-                                    </li>
-                                    <li class="action-item" data-action="settings">
-                                        <span class="action-text">Impostazioni account</span>
-                                    </li>
-                                    <li class="action-item" data-action="logout">
-                                        <span class="action-text">Esci</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        @else
+                     <li class="list-item">
                         <a class='link-item' href='/login'>
                             <p class='link-text'>Accedi</p>
                         </a>
-                        @endif
                     </li>
                 </ul>
             </nav>
@@ -224,10 +193,12 @@
                     </div>
 
                     <div class="mobile-menu-membership">
-                        <p>Diventa Member Nike per accedere a prodotti fantastici, tanta ispirazione e storie sullo sport. <a href="#" class="discover-more">Scopri di più</a></p>
+                        <p>Diventa Member Nike per accedere a prodotti fantastici, tanta ispirazione e storie sullo sport. 
+                            <a href="#" class="discover-more">Scopri di più</a>
+                        </p>
                         <div class="mobile-menu-buttons">
-                            <button class="mobile-menu-btn primary">Unisciti a noi</button>
-                            <button class="mobile-menu-btn secondary">Accedi</button>
+                            <button class="mobile-menu-btn primary" onclick="window.location.href='/register'">Unisciti a noi</button>
+                            <button class="mobile-menu-btn secondary" onclick="window.location.href='/login'">Accedi</button>
                         </div>
                     </div>
 
@@ -240,19 +211,19 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="/account/cart">
                                     <img class="help-icon" src="/assets/icons/cart-icon.svg" alt="Carrello" />
                                     Carrello
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="/account/orders">
                                     <i class="fa-regular fa-square help-icon"></i>
                                     Ordini
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="https://www.nike.com/it/retail">
                                     <i class="fa-solid fa-shop help-icon"></i>
                                     Trova un negozio
                                 </a>

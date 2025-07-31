@@ -11,11 +11,21 @@ prevButton.innerHTML = "&#10094;";
 nextButton.innerHTML = "&#10095;";
 
 function loadSliderImages() {
-    fetch('/api/landing/getSliderImages.php')
-        .then(response => response.json())
+    // Mantiene la stessa URL per compatibilità
+    fetch('/slider-images', {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(result => {
             if (!result.success) {
-                throw new Error(result.error || 'Errore nel caricamento dei dati');
+                throw new Error(result.message || result.error || 'Errore nel caricamento dei dati');
             }
 
             sliderImages = result.data;
@@ -23,7 +33,7 @@ function loadSliderImages() {
             if (sliderImages.length === 0) {
                 const noData = document.createElement("div");
                 noData.classList.add("no-data");
-                noData.textContent = 'Nessuna immagine disponibile';
+                noData.textContent = result.message || 'Nessuna immagine disponibile';
                 container.appendChild(noData);
                 return;
             }
@@ -55,6 +65,11 @@ function createSlider() {
         img.src = imgData.src;
         img.alt = imgData.alt;
         img.classList.add("slider-image");
+
+        // Gestione errore immagine
+        img.onerror = function() {
+            this.src = '/assets/images/placeholder.jpg'; // Fallback image
+        };
 
         const overlayContainer = document.createElement("div");
         overlayContainer.classList.add("slider-image-overlay");
@@ -94,17 +109,9 @@ function updateSlider() {
     const translateX = -(currentIndex * imageWidth);
     sliderTrack.style.transform = `translateX(${translateX}%)`;
 
-    if (currentIndex === 0) {
-        prevButton.classList.add("disabled");
-    } else {
-        prevButton.classList.remove("disabled");
-    }
-
-    if (currentIndex + step > sliderImages.length - itemsPerPage) {
-        nextButton.classList.add("disabled");
-    } else {
-        nextButton.classList.remove("disabled");
-    }
+    // Aggiorna stato bottoni
+    prevButton.classList.toggle("disabled", currentIndex === 0);
+    nextButton.classList.toggle("disabled", currentIndex + step > sliderImages.length - itemsPerPage);
 }
 
 function handlePrev() {
@@ -121,7 +128,9 @@ function handleNext() {
     }
 }
 
+// Event listeners
 prevButton.addEventListener("click", handlePrev);
 nextButton.addEventListener("click", handleNext);
 
+// Inizializzazione
 loadSliderImages();
