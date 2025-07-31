@@ -34,6 +34,13 @@
                 </div>
             </div>
 
+            <div class="filter-section" data-section="section">
+                <div class="filter-title">
+                    <h3>Categoria</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+
             <div class="filter-section" data-section="price">
                 <div class="filter-title">
                     <h3>Acquista per prezzo</h3>

@@ -117,6 +117,42 @@
     color: #757575;
 }
 
+.section-filter,
+.height-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.section-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.2s ease;
+}
+
+.radio-label:hover {
+    color: #111;
+}
+
+.radio-label input[type="radio"] {
+    margin: 0;
+    accent-color: #111;
+}
+
+.radio-label input[type="radio"]:checked + span {
+    font-weight: 600;
+    color: #111;
+}
+
 .products {
     flex: 1;
     display: grid;

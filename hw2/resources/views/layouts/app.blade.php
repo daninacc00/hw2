@@ -111,19 +111,19 @@
             <nav id="shopping-navbar">
                 <ul class="desktop-shopping-category">
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="/pages/shop/shop.php">Novità e in evidenza</a>
+                        <a class="menu-hover-trigger-link" href="{{ route('shop') }}">Novità e in evidenza</a>
                     </li>
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="/pages/shop/shop.php">Uomo</a>
+                        <a class="menu-hover-trigger-link" href="{{ route('shop', ['gender' => 'men']) }}">Uomo</a>
                     </li>
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="/pages/shop/shop.php">Donna</a>
+                        <a class="menu-hover-trigger-link" href="{{ route('shop', ['gender' => 'women']) }}">Donna</a>
                     </li>
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="/pages/shop/shop.php">Kids</a>
+                        <a class="menu-hover-trigger-link" href="{{ route('shop', ['gender' => 'kids']) }}">Kids</a>
                     </li>
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="/pages/shop/shop.php">Outlet</a>
+                        <a class="menu-hover-trigger-link" href="{{ route('shop', ['section' => 'outlet']) }}">Outlet</a>
                     </li>
                 </ul>
             </nav>
@@ -199,10 +199,10 @@
                 </div>
                 <nav class="mobile-menu-nav">
                     <ul class="mobile-menu-list">
-                        <li><a href="/pages/shop/shop.php">Novità e in evidenza</a></li>
-                        <li><a href="/pages/shop/shop.php">Uomo</a></li>
-                        <li><a href="/pages/shop/shop.php">Donna</a></li>
-                        <li><a href="/pages/shop/shop.php">Kids</a></li>
+                        <li><a href="{{ route('shop') }}">Novità e in evidenza</a></li>
+                        <li><a href="{{ route('shop', ['gender' => 'men']) }}">Uomo</a></li>
+                        <li><a href="{{ route('shop', ['gender' => 'women']) }}">Donna</a></li>
+                        <li><a href="{{ route('shop', ['gender' => 'kids']) }}">Kids</a></li>
                     </ul>
 
                     <div class="mobile-menu-brands">

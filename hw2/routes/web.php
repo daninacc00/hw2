@@ -21,7 +21,7 @@ Route::get('/register', [AuthController::class, 'showRegister']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::get('/shop', [ShopController::class, 'index']);
+Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/api/shop/products', [ShopController::class, 'getProducts']);
 Route::get('/api/shop/product', [ShopController::class, 'getProduct']);
 

@@ -18,11 +18,12 @@ let itemsPerPage = 20;
 let totalProducts = 0;
 let isLoading = false;
 
-document.addEventListener('DOMContentLoaded', function () {
-    init();
-});
+init();
 
 function init() {
+    // NUOVO: Carica i filtri dalla URL prima di tutto
+    loadFiltersFromURL();
+    
     const sortBtn = document.querySelector('.sort-btn');
     if (sortBtn) {
         sortBtn.addEventListener('click', toggleSortMenu);
@@ -35,6 +36,94 @@ function init() {
 
     setupFilterSections();
     loadInitialData();
+}
+
+// NUOVO: Funzione per leggere i parametri dalla URL
+function loadFiltersFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Gender - converte le stringhe ai numeri che usa il tuo sistema
+    if (urlParams.get('gender')) {
+        const genderValue = urlParams.get('gender');
+        if (genderValue === 'men') currentFilters.gender = [0];
+        else if (genderValue === 'women') currentFilters.gender = [1];
+        else if (genderValue === 'kids') currentFilters.gender = [2];
+    }
+    
+    // Section - CORRETTO: ora viene gestito
+    if (urlParams.get('section')) {
+        currentFilters.section = urlParams.get('section');
+    }
+    
+    // Sport 
+    if (urlParams.get('sport')) {
+        currentFilters.sport = [urlParams.get('sport')];
+    }
+    
+    // Sort
+    if (urlParams.get('sort')) {
+        currentFilters.sort = urlParams.get('sort');
+    }
+    
+    // NUOVO: Aggiorna il titolo della categoria in base ai filtri
+    updateCategoryTitleFromFilters();
+    
+    // NUOVO: Pre-seleziona i filtri nell'interfaccia dopo che sono stati creati
+    setTimeout(preselectFiltersInUI, 100);
+}
+
+// NUOVO: Aggiorna il titolo in base ai filtri dalla URL
+function updateCategoryTitleFromFilters() {
+    const title = document.getElementById('categoryTitle');
+    if (title) {
+        let newTitle = '';
+        
+        // Prima determina la sezione
+        if (currentFilters.section === 'shoes') {
+            newTitle = 'Scarpe';
+        } else if (currentFilters.section === 'wear') {
+            newTitle = 'Abbigliamento';
+        } else {
+            newTitle = 'Sneakers e scarpe'; // Default
+        }
+        
+        // Poi aggiungi il genere
+        if (currentFilters.gender.includes(0)) {
+            newTitle += ' da uomo';
+        } else if (currentFilters.gender.includes(1)) {
+            newTitle += ' da donna';
+        } else if (currentFilters.gender.includes(2)) {
+            newTitle += ' per bambini';
+        }
+        
+        // Aggiungi sport se presente
+        if (currentFilters.sport && currentFilters.sport.length > 0) {
+            const sportNames = {
+                'football': 'Calcio',
+                'running': 'Corsa', 
+                'basketball': 'Basket',
+                'tennis': 'Tennis',
+                'lifestyle': 'Lifestyle'
+            };
+            const sportName = sportNames[currentFilters.sport[0]] || currentFilters.sport[0];
+            newTitle += ` - ${sportName}`;
+        }
+        
+        title.textContent = newTitle;
+    }
+}
+
+// NUOVO: Pre-seleziona i filtri nell'interfaccia dopo che sono stati creati
+function preselectFiltersInUI() {
+    // Pre-seleziona gender checkboxes
+    currentFilters.gender.forEach(genderId => {
+        const checkbox = document.getElementById(genderId.toString());
+        if (checkbox) {
+            checkbox.checked = true;
+        }
+    });
+    
+    // Pre-seleziona altri filtri se implementati...
 }
 
 function setupFilterSections() {
@@ -52,6 +141,7 @@ function setupFilterSections() {
 
 function createFilterControls() {
     createGenderFilter();
+    createSectionFilter(); // NUOVO: Aggiunto filtro sezioni
     createPriceFilter();
     createSizeFilter();
     createColorFilter();
@@ -103,6 +193,79 @@ function createGenderFilter() {
         checkboxes.forEach(function (checkbox) {
             checkbox.addEventListener('change', function () {
                 handleGenderFilter(checkbox);
+            });
+        });
+    }
+}
+
+// NUOVO: Filtro per le sezioni
+function createSectionFilter() {
+    const sectionOptions = [
+        { name: 'Scarpe', slug: 'shoes' },
+        { name: 'Abbigliamento', slug: 'wear' }
+    ];
+
+    const sections = document.querySelectorAll('.filter-section');
+    let sectionTitle = null;
+
+    sections.forEach(function (section) {
+        if (section.dataset.section === "section") {
+            sectionTitle = section;
+        }
+    });
+
+    if (sectionTitle) {
+        const content = document.createElement('div');
+        content.classList.add("filter-content");
+        content.classList.add("section-filter");
+
+        const sectionRadios = document.createElement("div");
+        sectionRadios.classList.add("section-options");
+
+        // Opzione "Tutti"
+        const allLabel = document.createElement("label");
+        allLabel.classList.add("radio-label");
+
+        const allRadio = document.createElement("input");
+        allRadio.type = "radio";
+        allRadio.name = "section-filter";
+        allRadio.value = "";
+        allRadio.checked = !currentFilters.section; // Selezionato se nessuna sezione
+
+        const allText = document.createElement("span");
+        allText.textContent = "Tutti";
+
+        allLabel.appendChild(allRadio);
+        allLabel.appendChild(allText);
+        sectionRadios.appendChild(allLabel);
+
+        // Opzioni sezioni
+        sectionOptions.forEach(function (sectionOpt) {
+            const label = document.createElement("label");
+            label.classList.add("radio-label");
+
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = "section-filter";
+            radio.value = sectionOpt.slug;
+            radio.checked = currentFilters.section === sectionOpt.slug;
+
+            const text = document.createElement("span");
+            text.textContent = sectionOpt.name;
+
+            label.appendChild(radio);
+            label.appendChild(text);
+
+            sectionRadios.appendChild(label);
+        });
+
+        content.appendChild(sectionRadios);
+        sectionTitle.appendChild(content);
+
+        const radios = content.querySelectorAll('input[type="radio"]');
+        radios.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                handleSectionFilter(radio);
             });
         });
     }
@@ -375,6 +538,15 @@ function handleGenderFilter(checkbox) {
     }
 
     applyFilters();
+}
+
+// NUOVO: Gestisce il filtro sezioni
+function handleSectionFilter(radio) {
+    if (radio.checked) {
+        currentFilters.section = radio.value || null;
+        updateCategoryTitleFromFilters(); // Aggiorna il titolo
+        applyFilters();
+    }
 }
 
 function toggleSize(btn) {

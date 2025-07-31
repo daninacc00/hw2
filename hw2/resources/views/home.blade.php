@@ -60,7 +60,7 @@
                 <div class="article-caption">
                     <p>Novità per il running</p>
                     <h3>Vomero 18</h3>
-                    <a class="button" href="shop.html?cat=men&section=shoes">Acquista</a>
+                    <a class="button" href="{{ route('shop', ['gender' => 'men', 'section' => 'shoes']) }}">Acquista</a>
                 </div>
             </article>
 
@@ -70,7 +70,7 @@
                     <div class="article-caption">
                         <p>Nike Football</p>
                         <h3>Mad Energy Pack</h3>
-                        <a class="button" href="shop.html?cat=men&section=shoes">Acquista</a>
+                        <a class="button" href="{{ route('shop', ['gender' => 'men', 'section' => 'shoes']) }}">Acquista</a>
                     </div>
             </article>
         </div>
@@ -81,7 +81,7 @@
                 <div class="article-caption">
                     <p>Nike Style By</p>
                     <h3>Field General</h3>
-                    <a class="button" href="shop.html?cat=men&section=shoes">Acquista</a>
+                    <a class="button" href="{{ route('shop', ['gender' => 'men', 'section' => 'shoes']) }}">Acquista</a>
                 </div>
             </article>
 
@@ -91,7 +91,7 @@
                     <div class="article-caption">
                         <p>Per un comfort che dura tutto il giorno</p>
                         <h3>Collezione Nike 24.7</h3>
-                        <a class="button" href="shop.html?cat=men&section=shoes">Acquista</a>
+                        <a class="button" href="{{ route('shop', ['gender' => 'men', 'section' => 'shoes']) }}">Acquista</a>
                     </div>
             </article>
         </div>
@@ -102,7 +102,7 @@
                 <div class="article-caption athlete-caption">
                     <p>La sezione dell'atleta</p>
                     <h3>Sha'Carri Richardson</h3>
-                    <a class="button" href="shop.html?cat=men&section=shoes">Acquista</a>
+                    <a class="button" href="{{ route('shop', ['gender' => 'men', 'section' => 'shoes']) }}">Acquista</a>
                 </div>
             </article>
         </div>
@@ -122,45 +122,45 @@
         <div class="menu-column">
             <h4>Scarpe</h4>
             <ul class="menu-list">
-                <li class="list-item"><a class="link-item" href="shop.html?cat=men&section=shoes">Scarpe da running
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'men', 'section' => 'shoes']) }}">Scarpe da running
                         nere</a></li>
-                <li class="list-item"><a class="link-item" href="shop.html?cat=men&section=shoes">Scarpe da running
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'men', 'section' => 'shoes']) }}">Scarpe da running
                         bianche</a></li>
-                <li class="list-item"><a class="link-item" href="shop.html?cat=men&section=shoes">Scarpe Nike
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'men', 'section' => 'shoes']) }}">Scarpe Nike
                         P-6000</a></li>
-                <li class="list-item"><a class="link-item" href="shop.html?cat=men&section=shoes">Nike Initiator</a>
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'men', 'section' => 'shoes']) }}">Nike Initiator</a>
                 </li>
             </ul>
         </div>
         <div class="menu-column">
             <h4>Abbigliamento</h4>
             <ul class="menu-list">
-                <li class="list-item"><a class="link-item" href="shop.html?cat=women&section=wear">Pantaloni da
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'women', 'section' => 'wear']) }}">Pantaloni da
                         yoga</a></li>
-                <li class="list-item"><a class="link-item" href="shop.html?cat=women&section=wear">Pantaloni jogger
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'women', 'section' => 'wear']) }}">Pantaloni jogger
                         Tech Fleece</a></li>
-                <li class="list-item"><a class="link-item" href="shop.html?cat=women&section=wear">Tech Fleece</a>
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'women', 'section' => 'wear']) }}">Tech Fleece</a>
                 </li>
             </ul>
         </div>
         <div class="menu-column">
             <h4>Bambini</h4>
             <ul class="menu-list">
-                <li class="list-item"><a class="link-item" href="shop.html?cat=kids&section=shoes">Scarpe nere per
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'kids', 'section' => 'shoes']) }}">Scarpe nere per
                         bambina</a></li>
-                <li class="list-item"><a class="link-item" href="shop.html?cat=kids&section=shoes">Scarpe nere
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'kids', 'section' => 'shoes']) }}">Scarpe nere
                         kids</a></li>
             </ul>
         </div>
         <div class="menu-column">
             <h4>In evidenza</h4>
             <ul class="menu-list">
-                <li class="list-item"><a class="link-item" href="shop.html?cat=men&section=wear">Squadre di
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'men', 'section' => 'wear', 'sport' => 'football']) }}">Squadre di
                         calcio</a></li>
-                <li class="list-item"><a class="link-item" href="shop.html?cat=men&section=wear">Calcio</a></li>
-                <li class="list-item"><a class="link-item" href="shop.html?cat=men&section=wear">Nike
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'men', 'section' => 'wear', 'sport' => 'football']) }}">Calcio</a></li>
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'men', 'section' => 'wear', 'sport' => 'football']) }}">Nike
                         Inghilterra</a></li>
-                <li class="list-item"><a class="link-item" href="shop.html?cat=men&section=wear">Nike Run Club</a>
+                <li class="list-item"><a class="link-item" href="{{ route('shop', ['gender' => 'men', 'section' => 'wear', 'sport' => 'football']) }}">Nike Run Club</a>
                 </li>
             </ul>
         </div>

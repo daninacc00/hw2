@@ -24,7 +24,7 @@ class ShopController extends Controller
         $limit = min(50, max(1, (int) $request->get('limit', 20)));
 
         $result = $this->buildProductQuery($filters, $page, $limit);
-        
+
         return response()->json([
             'success' => true,
             'data' => $result
@@ -45,7 +45,7 @@ class ShopController extends Controller
 
         $product = new Product();
         $result = $product->getProductById($productId, $userId);
-        
+
         return response()->json($result);
     }
 
@@ -60,8 +60,20 @@ class ShopController extends Controller
 
         // Filtri array
         if ($request->has('gender')) {
-            $gender = $request->get('gender');
-            $filters['gender'] = is_array($gender) ? $gender : [$gender];
+            $genderValue = $request->get('gender');
+
+            // Converte i parametri stringa ai numeri che usa il tuo sistema
+            if ($genderValue === 'men') {
+                $filters['gender'] = [0];
+            } elseif ($genderValue === 'women') {
+                $filters['gender'] = [1];
+            } elseif ($genderValue === 'kids') {
+                $filters['gender'] = [2];
+            } else {
+                // Se è già un array di numeri (dai filtri JS)
+                $gender = $request->get('gender');
+                $filters['gender'] = is_array($gender) ? $gender : [$gender];
+            }
         }
 
         if ($request->has('sport')) {
@@ -108,7 +120,7 @@ class ShopController extends Controller
 
         // Applicazione filtri
         if (isset($filters['section'])) {
-            $query->whereHas('section', function($q) use ($filters) {
+            $query->whereHas('section', function ($q) use ($filters) {
                 $q->where('slug', $filters['section']);
             });
         }
@@ -118,19 +130,19 @@ class ShopController extends Controller
         }
 
         if (isset($filters['sport']) && !empty($filters['sport'])) {
-            $query->whereHas('sport', function($q) use ($filters) {
+            $query->whereHas('sport', function ($q) use ($filters) {
                 $q->whereIn('slug', $filters['sport']);
             });
         }
 
         if (isset($filters['colors']) && !empty($filters['colors'])) {
-            $query->whereHas('colors', function($q) use ($filters) {
+            $query->whereHas('colors', function ($q) use ($filters) {
                 $q->whereIn('hex_code', $filters['colors']);
             });
         }
 
         if (isset($filters['sizes']) && !empty($filters['sizes'])) {
-            $query->whereHas('sizes', function($q) use ($filters) {
+            $query->whereHas('sizes', function ($q) use ($filters) {
                 $q->whereIn('value', $filters['sizes']);
             });
         }
@@ -172,7 +184,7 @@ class ShopController extends Controller
         $products = $query->offset($offset)->limit($limit)->get();
 
         // Formattazione risultati
-        $formattedProducts = $products->map(function($product) {
+        $formattedProducts = $products->map(function ($product) {
             return [
                 'id' => $product->id,
                 'name' => $product->name,
