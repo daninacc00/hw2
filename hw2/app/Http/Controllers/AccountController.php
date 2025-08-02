@@ -6,8 +6,7 @@ use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\UserSettings;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class AccountController extends Controller
 {
@@ -60,101 +59,57 @@ class AccountController extends Controller
     {
         $userId = session('user_id');
         
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|unique:users,email,' . $userId,
-            'first_name' => 'required|string|max:50',
-            'last_name' => 'required|string|max:50',
-            'phone' => 'nullable|string|max:20',
-            'birth_date' => 'nullable|date_format:Y-m-d',
-            'country' => 'nullable|string|max:10',
-            'province' => 'nullable|string|max:10',
-            'newsletter_enabled' => 'boolean',
-            'notifications_enabled' => 'boolean'
-        ]);
+        $email = $request->input('email');
+        $first_name = $request->input('first_name');
+        $last_name = $request->input('last_name');
+        $phone = $request->input('phone');
+        $birth_date = $request->input('birth_date');
+        $newsletter_enabled = $request->input('newsletter_enabled');
+        $notifications_enabled = $request->input('notifications_enabled');
 
-        if ($validator->fails()) {
+        if (empty($email) || empty($first_name) || empty($last_name)) {
             return response()->json([
                 'success' => false,
-                'error' => $validator->errors()->first()
+                'error' => 'Campi obbligatori mancanti'
+            ], 400);
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Formato email non valido'
             ], 400);
         }
 
         try {
-            // Aggiorna i dati utente
             $user = User::find($userId);
-            $user->email = $request->input('email');
-            $user->first_name = $request->input('first_name');
-            $user->last_name = $request->input('last_name');
+            $user->email = $email;
+            $user->first_name = $first_name;
+            $user->last_name = $last_name;
             $user->save();
 
-            // Aggiorna o crea il profilo
             $profile = UserProfile::where('user_id', $userId)->first();
             if (!$profile) {
                 $profile = new UserProfile();
                 $profile->user_id = $userId;
             }
             
-            $profile->phone = $request->input('phone');
-            
-            // Gestisci la data di nascita
-            $birthDate = $request->input('birth_date');
-            if (!empty($birthDate)) {
-                // Assicurati che la data sia nel formato corretto
-                try {
-                    $profile->birth_date = \Carbon\Carbon::createFromFormat('Y-m-d', $birthDate)->format('Y-m-d');
-                } catch (\Exception $e) {
-                    // Se il formato non è corretto, prova altri formati comuni
-                    try {
-                        $profile->birth_date = \Carbon\Carbon::parse($birthDate)->format('Y-m-d');
-                    } catch (\Exception $e) {
-                        return response()->json([
-                            'success' => false,
-                            'error' => 'Formato data di nascita non valido'
-                        ], 400);
-                    }
-                }
-            } else {
-                $profile->birth_date = null;
-            }
-            
+            $profile->phone = $phone;
+            $profile->birth_date = $birth_date;
             $profile->save();
 
-            // Aggiorna o crea le impostazioni
             $settings = UserSettings::where('user_id', $userId)->first();
             if (!$settings) {
                 $settings = new UserSettings();
                 $settings->user_id = $userId;
             }
             
-            $settings->newsletter_enabled = $request->input('newsletter_enabled', false);
-            $settings->notifications_enabled = $request->input('notifications_enabled', false);
+            $settings->newsletter_enabled = $newsletter_enabled;
+            $settings->notifications_enabled = $notifications_enabled;
             $settings->save();
-
-            // Ricarica i dati aggiornati
-            $updatedUser = User::with(['profile', 'settings'])->find($userId);
-            
-            $profileData = [
-                'id' => $updatedUser->id,
-                'username' => $updatedUser->username,
-                'email' => $updatedUser->email,
-                'first_name' => $updatedUser->first_name,
-                'last_name' => $updatedUser->last_name,
-                'last_login' => $updatedUser->last_login,
-                'created_at' => $updatedUser->created_at,
-                'profile' => $updatedUser->profile ? [
-                    'birth_date' => $updatedUser->profile->birth_date,
-                    'phone' => $updatedUser->profile->phone,
-                    'interests' => $updatedUser->profile->interests
-                ] : null,
-                'settings' => $updatedUser->settings ? [
-                    'newsletter_enabled' => $updatedUser->settings->newsletter_enabled,
-                    'notifications_enabled' => $updatedUser->settings->notifications_enabled,
-                ] : null
-            ];
 
             return response()->json([
                 'success' => true,
-                'data' => $profileData,
                 'message' => 'Impostazioni aggiornate con successo'
             ]);
 
@@ -170,32 +125,35 @@ class AccountController extends Controller
     {
         $userId = session('user_id');
         
-        $validator = Validator::make($request->all(), [
-            'current_password' => 'required',
-            'new_password' => 'required|min:6',
-            'confirm_password' => 'required|same:new_password'
-        ]);
+        $current_password = $request->input('current_password');
+        $new_password = $request->input('new_password');
+        $confirm_password = $request->input('confirm_password');
 
-        if ($validator->fails()) {
+        if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
             return response()->json([
                 'success' => false,
-                'error' => $validator->errors()->first()
+                'error' => 'Tutti i campi sono obbligatori'
+            ], 400);
+        }
+
+        if ($new_password !== $confirm_password) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Le password non corrispondono'
             ], 400);
         }
 
         try {
             $user = User::find($userId);
             
-            // Verifica la password attuale
-            if (!Hash::check($request->input('current_password'), $user->password_hash)) {
+            if (!password_verify($current_password, $user->password_hash)) {
                 return response()->json([
                     'success' => false,
                     'error' => 'Password attuale non corretta'
                 ], 400);
             }
 
-            // Aggiorna la password
-            $user->password_hash = Hash::make($request->input('new_password'));
+            $user->password_hash = password_hash($new_password, PASSWORD_DEFAULT);
             $user->save();
 
             return response()->json([

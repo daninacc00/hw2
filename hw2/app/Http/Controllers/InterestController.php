@@ -35,7 +35,6 @@ class InterestController extends Controller
             }
         }
 
-        // Aggiungi manualmente la relazione categoria e se l'utente ha l'interesse
         foreach ($interests as $interest) {
             $interest->category_name = $interest->category->name;
             $userInterest = UserInterest::where('user_id', $userId)
@@ -69,7 +68,6 @@ class InterestController extends Controller
             }
         }
 
-        // Carica le relazioni manualmente
         $interests = [];
         foreach ($userInterests as $userInterest) {
             $interest = $userInterest->interest;
@@ -86,7 +84,9 @@ class InterestController extends Controller
 
     public function toggleInterest(Request $request)
     {
-        if (!$request->has('interestId') || empty($request->input('interestId')) || $request->input('interestId') <= 0) {
+        $interestId = $request->input('interestId');
+        
+        if (!$interestId || empty($interestId) || $interestId <= 0) {
             return response()->json([
                 'success' => false,
                 'message' => 'ID interesse non valido o mancante'
@@ -94,7 +94,7 @@ class InterestController extends Controller
         }
 
         $userId = session('user_id');
-        $interestId = (int) $request->input('interestId');
+        $interestId = (int) $interestId;
 
         $userInterest = UserInterest::where('user_id', $userId)
                                    ->where('interest_id', $interestId)

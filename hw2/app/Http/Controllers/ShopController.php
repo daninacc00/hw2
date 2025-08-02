@@ -4,11 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\Category;
-use App\Models\Section;
-use App\Models\Sport;
-use App\Models\Color;
-use App\Models\Size;
 
 class ShopController extends Controller
 {
@@ -31,38 +26,17 @@ class ShopController extends Controller
         ]);
     }
 
-    public function getProduct(Request $request)
-    {
-        $productId = $request->query('id');
-        $userId = session('user_id');
-
-        if (!$productId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'ID prodotto mancante'
-            ]);
-        }
-
-        $product = new Product();
-        $result = $product->getProductById($productId, $userId);
-
-        return response()->json($result);
-    }
-
     private function parseFilters(Request $request)
     {
         $filters = [];
 
-        // Filtri semplici
         if ($request->has('section')) $filters['section'] = $request->get('section');
         if ($request->has('sort')) $filters['sort'] = $request->get('sort');
         if ($request->has('shoe_height')) $filters['shoe_height'] = $request->get('shoe_height');
 
-        // Filtri array
         if ($request->has('gender')) {
             $genderValue = $request->get('gender');
 
-            // Converte i parametri stringa ai numeri che usa il tuo sistema
             if ($genderValue === 'men') {
                 $filters['gender'] = [0];
             } elseif ($genderValue === 'women') {
@@ -70,7 +44,6 @@ class ShopController extends Controller
             } elseif ($genderValue === 'kids') {
                 $filters['gender'] = [2];
             } else {
-                // Se è già un array di numeri (dai filtri JS)
                 $gender = $request->get('gender');
                 $filters['gender'] = is_array($gender) ? $gender : [$gender];
             }
@@ -91,7 +64,6 @@ class ShopController extends Controller
             $filters['sizes'] = is_array($sizes) ? $sizes : [$sizes];
         }
 
-        // Filtri prezzo
         if ($request->has('min_price') && $request->get('min_price') !== '') {
             $filters['min_price'] = (float) $request->get('min_price');
         }
@@ -99,7 +71,6 @@ class ShopController extends Controller
             $filters['max_price'] = (float) $request->get('max_price');
         }
 
-        // Filtri booleani
         if ($request->has('is_on_sale')) {
             $filters['is_on_sale'] = ($request->get('is_on_sale') === 'true' || $request->get('is_on_sale') === '1');
         }
@@ -118,7 +89,6 @@ class ShopController extends Controller
         $query = Product::with(['category', 'section', 'sport', 'primaryImage', 'colors'])
             ->where('status', 0);
 
-        // Applicazione filtri
         if (isset($filters['section'])) {
             $query->whereHas('section', function ($q) use ($filters) {
                 $q->where('slug', $filters['section']);
@@ -147,7 +117,6 @@ class ShopController extends Controller
             });
         }
 
-        // Filtri prezzo
         if (isset($filters['min_price'])) {
             $query->where('price', '>=', $filters['min_price']);
         }
@@ -155,7 +124,6 @@ class ShopController extends Controller
             $query->where('price', '<=', $filters['max_price']);
         }
 
-        // Filtri booleani
         if (isset($filters['is_on_sale']) && $filters['is_on_sale']) {
             $query->where('is_on_sale', true);
         }
@@ -173,17 +141,13 @@ class ShopController extends Controller
             }
         }
 
-        // Ordinamento
         $this->applySorting($query, $filters['sort'] ?? 'newest');
 
-        // Conteggio totale
         $total = $query->count();
 
-        // Paginazione
         $offset = ($page - 1) * $limit;
         $products = $query->offset($offset)->limit($limit)->get();
 
-        // Formattazione risultati
         $formattedProducts = $products->map(function ($product) {
             $primaryImage = $product->images->where('is_primary', true)->first();
 

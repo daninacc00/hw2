@@ -87,24 +87,6 @@ class FavoritesController extends Controller
         return response()->json($result);
     }
 
-    public function getProduct(Request $request)
-    {
-        $productId = $request->query('id');
-        $userId = session('user_id');
-
-        if (!$productId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'ID prodotto mancante'
-            ]);
-        }
-
-        $product = new Product();
-        $result = $product->getProductById($productId, $userId);
-
-        return response()->json($result);
-    }
-
     public function getFavoritesCount(Request $request)
     {
         $userId = session('user_id');
@@ -255,7 +237,6 @@ class FavoritesController extends Controller
         ];
     }
 
-    
     private function getNumOfFavorites($userId)
     {
         return Favorite::where('user_id', $userId)->count();

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -103,7 +102,6 @@ class CartController extends Controller
             ]);
         }
 
-        // Validazione input
         $productId = $request->input('productId');
         $colorId = $request->input('colorId');
         $sizeId = $request->input('sizeId');
@@ -117,20 +115,21 @@ class CartController extends Controller
         }
 
         try {
-            // Verifica se il prodotto esiste e ha stock disponibile
-            $product = DB::selectOne("
+            $product = DB::select("
                 SELECT p.*, ps.stock_quantity 
                 FROM products p
                 LEFT JOIN product_sizes ps ON p.id = ps.product_id AND ps.size_id = ?
                 WHERE p.id = ?
             ", [$sizeId, $productId]);
 
-            if (!$product) {
+            if (empty($product)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Prodotto non trovato'
                 ]);
             }
+
+            $product = $product[0];
 
             if ($product->stock_quantity < $quantity) {
                 return response()->json([
@@ -139,14 +138,14 @@ class CartController extends Controller
                 ]);
             }
 
-            // Verifica se esiste già nel carrello
-            $existingItem = DB::selectOne("
+            $existingItem = DB::select("
                 SELECT id, quantity 
                 FROM cart 
                 WHERE user_id = ? AND product_id = ? AND size_id = ? AND color_id = ?
             ", [$userId, $productId, $sizeId, $colorId]);
 
-            if ($existingItem) {
+            if (!empty($existingItem)) {
+                $existingItem = $existingItem[0];
                 $newQuantity = $existingItem->quantity + $quantity;
                 
                 if ($newQuantity > $product->stock_quantity) {
@@ -188,10 +187,7 @@ class CartController extends Controller
         if (!$userId) {
             return response()->json([
                 'success' => false,
-                'message' => "Devi essere loggato per accedere al tuo carrello",
-                'error_type' => 'auth_required',
-                'redirect_url' => '/login',
-                'data' => []
+                'message' => "Devi essere loggato per accedere al tuo carrello"
             ]);
         }
 
@@ -206,20 +202,21 @@ class CartController extends Controller
         }
 
         try {
-            // Verifica che l'elemento appartenga all'utente e ottieni info stock
-            $cartItem = DB::selectOne("
+            $cartItem = DB::select("
                 SELECT c.id, c.quantity, ps.stock_quantity
                 FROM cart c
                 LEFT JOIN product_sizes ps ON c.product_id = ps.product_id AND c.size_id = ps.size_id
                 WHERE c.id = ? AND c.user_id = ?
             ", [$cartItemId, $userId]);
 
-            if (!$cartItem) {
+            if (empty($cartItem)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Elemento carrello non trovato'
                 ]);
             }
+
+            $cartItem = $cartItem[0];
 
             if ($quantity > $cartItem->stock_quantity) {
                 return response()->json([
@@ -236,11 +233,7 @@ class CartController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Quantità aggiornata con successo',
-                'data' => [
-                    'new_quantity' => (int)$quantity,
-                    'old_quantity' => (int)$cartItem->quantity
-                ]
+                'message' => 'Quantità aggiornata con successo'
             ]);
 
         } catch (\Exception $e) {
@@ -258,10 +251,7 @@ class CartController extends Controller
         if (!$userId) {
             return response()->json([
                 'success' => false,
-                'message' => "Devi essere loggato per accedere al tuo carrello",
-                'error_type' => 'auth_required',
-                'redirect_url' => '/login',
-                'data' => []
+                'message' => "Devi essere loggato per accedere al tuo carrello"
             ]);
         }
 
@@ -296,63 +286,6 @@ class CartController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Errore durante la rimozione'
-            ]);
-        }
-    }
-
-    public function removeFromCart(Request $request)
-    {
-        $userId = session('user_id');
-
-        if (!$userId) {
-            return response()->json([
-                'success' => false,
-                'message' => "Devi essere loggato per accedere al tuo carrello",
-                'error_type' => 'auth_required',
-                'redirect_url' => '/login',
-                'data' => []
-            ]);
-        }
-
-        $productId = $request->input('productId');
-
-        if (!$productId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'ID prodotto mancante'
-            ]);
-        }
-
-        try {
-            // Conta gli elementi che verranno eliminati
-            $deletedCount = DB::selectOne("
-                SELECT COUNT(*) as count 
-                FROM cart 
-                WHERE user_id = ? AND product_id = ?
-            ", [$userId, $productId])->count;
-
-            if ($deletedCount == 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Prodotto non trovato nel carrello'
-                ]);
-            }
-
-            DB::delete("
-                DELETE FROM cart 
-                WHERE user_id = ? AND product_id = ?
-            ", [$userId, $productId]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Prodotto rimosso dal carrello',
-                'deleted_count' => $deletedCount
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Errore durante la rimozione del prodotto'
             ]);
         }
     }

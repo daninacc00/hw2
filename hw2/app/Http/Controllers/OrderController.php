@@ -1,11 +1,9 @@
 <?php
-// app/Http/Controllers/OrderController.php
 
 namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -18,7 +16,6 @@ class OrderController extends Controller
             return redirect('/login');
         }
 
-        // Recupera ordini dell'utente con conteggio items
         $orders = Order::where('user_id', $userId)
             ->withCount('orderItems as items_count')
             ->orderBy('created_at', 'desc')
@@ -27,7 +24,7 @@ class OrderController extends Controller
         return view('account.orders', compact('orders'));
     }
 
-    public function getOrderItems(Request $request): JsonResponse
+    public function getOrderItems(Request $request)
     {
         $userId = session('user_id');
 
@@ -48,7 +45,6 @@ class OrderController extends Controller
         }
 
         try {
-            // Verifica che l'ordine appartenga all'utente
             $order = Order::where('id', $orderId)
                 ->where('user_id', $userId)
                 ->first();
@@ -60,7 +56,6 @@ class OrderController extends Controller
                 ]);
             }
 
-            // Recupera i prodotti dell'ordine con tutti i dettagli
             $items = DB::select("
                 SELECT 
                     oi.quantity,
@@ -88,7 +83,7 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Errore durante il caricamento: ' . $e->getMessage()
+                'message' => 'Errore durante il caricamento'
             ]);
         }
     }

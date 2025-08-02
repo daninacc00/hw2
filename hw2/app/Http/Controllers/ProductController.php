@@ -5,15 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Favorite;
-use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
     public function show(Request $request, $id)
     {
-        $userId = session('user_id');
-        
-        // Trova il prodotto tramite ID
         $product = Product::with([
             'category', 
             'section', 
@@ -34,7 +30,6 @@ class ProductController extends Controller
             abort(404, 'Prodotto non trovato');
         }
         
-        // Passa il prodotto alla vista
         return view('product', compact('product'));
     }
 
@@ -73,14 +68,13 @@ class ProductController extends Controller
             ], 404);
         }
 
-        // Verifica se è nei preferiti
         $isFavorite = false;
         if ($userId) {
-            $favorite = new Favorite();
-            $isFavorite = $favorite->isProductInUserFavorites($userId, $product->id);
+            $isFavorite = Favorite::where('user_id', $userId)
+                                 ->where('product_id', $product->id)
+                                 ->exists();
         }
 
-        // Formatta i dati per il frontend
         $productData = [
             'id' => $product->id,
             'name' => $product->name,

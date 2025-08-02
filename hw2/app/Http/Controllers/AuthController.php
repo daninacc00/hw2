@@ -148,12 +148,6 @@ class AuthController extends Controller
         }
     }
 
-    private function updateLastLogin($idUtente)
-    {
-        User::where('id', $idUtente)
-            ->update(['last_login' => now()]);
-    }
-
     private function authenticateUser($username, $password)
     {
         $user = User::where(function ($query) use ($username) {
@@ -165,7 +159,8 @@ class AuthController extends Controller
 
         if ($user) {
             if (password_verify($password, $user->password_hash)) {
-                $this->updateLastLogin($user->id);
+                $user->last_login = now();
+                $user->save();
 
                 $userData = $user->toArray();
                 unset($userData['password_hash']);
