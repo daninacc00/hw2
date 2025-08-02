@@ -1,17 +1,15 @@
-{{-- resources/views/checkout/index.blade.php --}}
-
 @extends('layouts.app')
 
 @section('styles')
 <title>Checkout</title>
 <meta name="csrf-token" content="{{ csrf_token() }}">
+
 <link rel="stylesheet" href="{{ asset('css/checkout.css') }}">
-<!-- Square Web Payments SDK -->
-<script type="text/javascript" src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
 @endsection
 
 @section('scripts')
 <script src="{{ asset('js/checkout.js') }}" defer></script>
+<script type="text/javascript" src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
 @endsection
 
 @section('content')
@@ -19,7 +17,6 @@
     <h1>Finalizza Ordine</h1>
     
     <div class="checkout-container">
-        <!-- Riepilogo Ordine -->
         <div class="order-summary">
             <h2>Riepilogo Ordine</h2>
             @foreach ($cartItems as $item)
@@ -30,16 +27,15 @@
                     <p>Colore: {{ $item->color_name }}</p>
                     <p>Taglia: {{ $item->size_name }}</p>
                     <p>Quantità: {{ $item->quantity }}</p>
-                    <p class="price">€{{ number_format($item->price * $item->quantity, 2) }}</p>
+                    <p class="price">€{{ $item->price * $item->quantity }}</p>
                 </div>
             </div>
             @endforeach
             <div class="total">
-                <strong>Totale: €{{ number_format($total, 2) }}</strong>
+                <strong>Totale: €{{ $total }}</strong>
             </div>
         </div>
 
-        <!-- Form Checkout -->
         <div class="checkout-form">
             <form id="checkout-form">
                 @csrf
@@ -62,12 +58,11 @@
 
                 <h2>Dati di Pagamento</h2>
                 
-                <!-- Container per Square Payment Form -->
                 <div id="card-container"></div>
                 <div id="payment-status"></div>
                 
                 <button type="submit" id="pay-button">
-                    Paga €{{ number_format($total, 2) }}
+                    Paga €{{ $total }}
                 </button>
             </form>
         </div>

@@ -1,23 +1,19 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="it">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title')</title>
 
-    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/x-icon" sizes="32x32" href="{{ asset('favicon.ico') }}" />
 
-    <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <!-- Styles -->
     @yield('styles')
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
-    <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
     @yield('scripts')
 </head>
@@ -80,19 +76,19 @@
             <nav id="shopping-navbar">
                 <ul class="desktop-shopping-category">
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="{{ route('shop') }}">Novità e in evidenza</a>
+                        <a class="menu-hover-trigger-link" href="/shop">Novità e in evidenza</a>
                     </li>
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="{{ route('shop', ['gender' => 'men']) }}">Uomo</a>
+                        <a class="menu-hover-trigger-link" href="/shop?gender=men">Uomo</a>
                     </li>
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="{{ route('shop', ['gender' => 'women']) }}">Donna</a>
+                        <a class="menu-hover-trigger-link" href="/shop?gender=women">Donna</a>
                     </li>
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="{{ route('shop', ['gender' => 'kids']) }}">Kids</a>
+                        <a class="menu-hover-trigger-link" href="/shop?gender=kids">Kids</a>
                     </li>
                     <li class="list-item">
-                        <a class="menu-hover-trigger-link" href="{{ route('shop', ['section' => 'outlet']) }}">Outlet</a>
+                        <a class="menu-hover-trigger-link" href="/shop?section=outlet">Outlet</a>
                     </li>
                 </ul>
             </nav>
@@ -147,9 +143,7 @@
                 <div class="icon-button cart-button">
                     <a href="/account/cart" class="link-item cart-link">
                         <img src="/assets/icons/cart-icon.svg" alt="Carrello">
-                        <span
-                            class="counter-badge  <?php echo "hidden" ?>"
-                            id="cart-counter">
+                        <span class="counter-badge hidden" id="cart-counter">
                         </span>
                     </a>
                 </div>
@@ -168,10 +162,10 @@
                 </div>
                 <nav class="mobile-menu-nav">
                     <ul class="mobile-menu-list">
-                        <li><a href="{{ route('shop') }}">Novità e in evidenza</a></li>
-                        <li><a href="{{ route('shop', ['gender' => 'men']) }}">Uomo</a></li>
-                        <li><a href="{{ route('shop', ['gender' => 'women']) }}">Donna</a></li>
-                        <li><a href="{{ route('shop', ['gender' => 'kids']) }}">Kids</a></li>
+                        <li><a href="/shop">Novità e in evidenza</a></li>
+                        <li><a href="/shop?gender=men">Uomo</a></li>
+                        <li><a href="/shop?gender=women">Donna</a></li>
+                        <li><a href="/shop?gender=kids">Kids</a></li>
                     </ul>
 
                     <div class="mobile-menu-brands">
@@ -382,7 +376,7 @@
         <div class="footer-bottom">
             <ul class="footer-list">
                 <li class="footer-list-item rights">
-                    <p> <span>© <?php echo date('Y'); ?> Nike, Inc. Tutti i diritti riservati</span></p>
+                    <p> <span>© 2025 Nike, Inc. Tutti i diritti riservati</span></p>
                 </li>
                 <li class="footer-list-item"><a href="#">Guide</a></li>
                 <li class="footer-list-item"><a href="#">Condizioni d'uso</a></li>

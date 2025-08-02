@@ -181,7 +181,6 @@
                 </div>
             </div>
 
-            <!-- Modal per cambio password -->
             <div id="password-modal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
