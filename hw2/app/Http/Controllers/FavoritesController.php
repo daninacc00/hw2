@@ -106,6 +106,25 @@ class FavoritesController extends Controller
         ]);
     }
 
+    public function getProduct(Request $request)
+    {
+        $productId = $request->query('id');
+        $userId = session('user_id');
+
+        if (!$productId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ID prodotto mancante'
+            ]);
+        }
+
+        $product = new Product();
+        $result = $product->getProductById($productId, $userId);
+
+        return response()->json($result);
+    }
+
+
     private function isProductInUserFavorites($userId, $productId)
     {
         if (!$userId) {

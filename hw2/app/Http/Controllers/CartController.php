@@ -79,7 +79,6 @@ class CartController extends Controller
                     'summary' => $summary
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -147,7 +146,7 @@ class CartController extends Controller
             if (!empty($existingItem)) {
                 $existingItem = $existingItem[0];
                 $newQuantity = $existingItem->quantity + $quantity;
-                
+
                 if ($newQuantity > $product->stock_quantity) {
                     return response()->json([
                         'success' => false,
@@ -171,7 +170,6 @@ class CartController extends Controller
                 'success' => true,
                 'message' => 'Prodotto aggiunto al carrello'
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -235,7 +233,6 @@ class CartController extends Controller
                 'success' => true,
                 'message' => 'Quantità aggiornata con successo'
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -243,6 +240,64 @@ class CartController extends Controller
             ]);
         }
     }
+
+    public function removeFromCart(Request $request)
+    {
+        $userId = session('user_id');
+
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => "Devi essere loggato per accedere al tuo carrello",
+                'error_type' => 'auth_required',
+                'redirect_url' => '/login',
+                'data' => []
+            ]);
+        }
+
+        $productId = $request->input('productId');
+
+        if (!$productId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ID prodotto mancante'
+            ]);
+        }
+
+        try {
+            $result = DB::select("
+            SELECT COUNT(*) as count 
+            FROM cart 
+            WHERE user_id = ? AND product_id = ?
+        ", [$userId, $productId]);
+
+            $deletedCount = $result[0]->count;
+
+            if ($deletedCount == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Prodotto non trovato nel carrello'
+                ]);
+            }
+
+            DB::delete("
+            DELETE FROM cart 
+            WHERE user_id = ? AND product_id = ?
+        ", [$userId, $productId]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Prodotto rimosso dal carrello',
+                'deleted_count' => $deletedCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Errore durante la rimozione del prodotto'
+            ]);
+        }
+    }
+
 
     public function removeCartItem(Request $request)
     {
@@ -281,7 +336,6 @@ class CartController extends Controller
                     'message' => 'Elemento carrello non trovato'
                 ]);
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
