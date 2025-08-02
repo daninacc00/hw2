@@ -9,7 +9,7 @@ use App\Models\Cart;
 
 class FavoritesController extends Controller
 {
-    public function index()
+    public function favorites()
     {
         return view('account.favorites');
     }

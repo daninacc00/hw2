@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
-    public function index()
+    public function checkout()
     {
         $userId = session('user_id');
         

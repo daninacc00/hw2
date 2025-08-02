@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function orders()
     {
         $userId = session('user_id');
 

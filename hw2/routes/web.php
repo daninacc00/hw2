@@ -15,39 +15,26 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 
-// Route pubbliche per autenticazione
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/slider-images', [HomeController::class, 'getSliderImages']);
 
 Route::get('/login', [AuthController::class, 'showLogin']);
-Route::get('/register', [AuthController::class, 'showRegister']);
-
-// Route POST per autenticazione (DEVONO essere pubbliche)
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegister']);
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+Route::get('/shop', [ShopController::class, 'shop']);
 Route::get('/api/shop/products', [ShopController::class, 'getProducts']);
 Route::get('/api/shop/product', [ShopController::class, 'getProduct']);
 
 Route::get('/product/{id}', [ProductController::class, 'show'])->where('id', '[0-9]+');
-Route::get('/api/product', [ProductController::class, 'getProductData']); // Come nell'HW1: /api/product?id=1
+Route::get('/api/product', [ProductController::class, 'getProductData']);
 
-// Route protette da middleware di autenticazione
 Route::middleware(AuthMiddleware::class)->group(function () {
-    Route::get('/profile', function () {
-        return view('profile');
-    });
-
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    });
-
     Route::get('/logout', [AuthController::class, 'logout']);
 
     Route::get('/api/user/profile', [UserController::class, 'getProfile']);
 
-    // Account routes
     Route::get('/account', [AccountController::class, 'profile']);
     Route::get('/account/settings', [AccountController::class, 'settings']);
     Route::get('/api/account/profile', [AccountController::class, 'getProfileData']);
@@ -61,24 +48,25 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     Route::post('/api/interests/toggle', [InterestController::class, 'toggleInterest']);
 
     // Favorites routes
-    Route::get('/account/favorites', [FavoritesController::class, 'index']);
+    Route::get('/account/favorites', [FavoritesController::class, 'favorites']);
     Route::get('/api/favorites/get', [FavoritesController::class, 'getFavorites']);
     Route::post('/api/favorites/add', [FavoritesController::class, 'addToFavorites']);
     Route::post('/api/favorites/remove', [FavoritesController::class, 'removeFromFavorites']);
     Route::get('/api/favorites/product', [FavoritesController::class, 'getProduct']);
 
     // Cart routes
-    Route::get('/account/cart', [CartController::class, 'index']);
+    Route::get('/account/cart', [CartController::class, 'cart']);
     Route::get('/api/cart/get', [CartController::class, 'getCart']);
     Route::post('/api/cart/add', [CartController::class, 'addToCart']);
     Route::post('/api/cart/update', [CartController::class, 'updateQuantity']);
     Route::post('/api/cart/remove-item', [CartController::class, 'removeCartItem']);
     Route::post('/api/cart/remove', [CartController::class, 'removeFromCart']);
 
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    // Checkout routes
+    Route::get('/checkout', [CheckoutController::class, 'checkout']);
     Route::post('/api/checkout/process', [CheckoutController::class, 'processPayment']);
 
     // Orders routes  
-    Route::get('/account/orders', [OrderController::class, 'index'])->name('account.orders');
+    Route::get('/account/orders', [OrderController::class, 'orders']);
     Route::get('/api/orders/items', [OrderController::class, 'getOrderItems']);
 });

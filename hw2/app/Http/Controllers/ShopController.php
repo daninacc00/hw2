@@ -7,7 +7,7 @@ use App\Models\Product;
 
 class ShopController extends Controller
 {
-    public function index(Request $request)
+    public function shop(Request $request)
     {
         return view('shop');
     }

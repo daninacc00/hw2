@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-    public function index()
+    public function cart()
     {
         return view('account.cart');
     }
