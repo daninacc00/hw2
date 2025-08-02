@@ -1,168 +1,230 @@
-// Variabile globale per i dati utente
 let currentUser = null;
 
-// Inizializzazione al caricamento della pagina
 loadUserData();
 
-// Funzione per caricare i dati utente tramite API
-async function loadUserData() {
-    try {
-        const response = await fetch('/api/user/profile', {
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+function loadUserData() {
+    fetch('/api/user/profile', {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
+        }
+    })
+        .then(function(response) {
+            if (response.ok) {
+                return response.json();
+            } else {
+                currentUser = null;
+                updateUIForGuestUser();
+                return null;
             }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.user) {
+        })
+        .then(function(data) {
+            if (data && data.success && data.user) {
                 currentUser = data.user;
                 updateUIForLoggedUser();
             } else {
                 currentUser = null;
                 updateUIForGuestUser();
             }
-        } else {
+        })
+        .catch(function(error) {
+            console.error('Errore nel caricamento dati utente:', error);
             currentUser = null;
             updateUIForGuestUser();
-        }
-    } catch (error) {
-        console.error('Errore nel caricamento dati utente:', error);
-        currentUser = null;
-        updateUIForGuestUser();
-    }
+        });
 }
 
-// Aggiorna UI per utente loggato
 function updateUIForLoggedUser() {
-    // Aggiorna topbar desktop
     updateDesktopUserMenu();
-    
-    // Aggiorna menu mobile
     updateMobileUserMenu();
 }
 
-// Aggiorna UI per utente guest
 function updateUIForGuestUser() {
-    // Aggiorna topbar desktop
     updateDesktopGuestMenu();
-    
-    // Aggiorna menu mobile
     updateMobileGuestMenu();
 }
 
-// Aggiorna menu desktop per utente loggato
 function updateDesktopUserMenu() {
     const userMenuItem = document.querySelector('#user-menu-navbar .list-item:last-child');
     if (userMenuItem && currentUser) {
-        userMenuItem.innerHTML = `
-            <div class="tooltip-container">
-                <p class="link-text">
-                    Ciao, ${currentUser.first_name}
-                </p>
-                <div class="tooltip">
-                    <h3 class="tooltip-title">Account</h3>
-                    <ul class="action-list">
-                        <li class="action-item" data-action="profile">
-                            <span class="action-text">Profilo</span>
-                        </li>
-                        <li class="action-item" data-action="favorites">
-                            <span class="action-text">Preferiti</span>
-                        </li>
-                        <li class="action-item" data-action="cart">
-                            <span class="action-text">Carrello</span>
-                        </li>
-                        <li class="action-item" data-action="orders">
-                            <span class="action-text">Ordini</span>
-                        </li>
-                        <li class="action-item" data-action="settings">
-                            <span class="action-text">Impostazioni account</span>
-                        </li>
-                        <li class="action-item" data-action="logout">
-                            <span class="action-text">Esci</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        `;
+        const tooltipContainer = document.createElement('div');
+        tooltipContainer.className = 'tooltip-container';
+
+        const linkText = document.createElement('p');
+        linkText.className = 'link-text';
+        linkText.textContent = 'Ciao, ' + currentUser.first_name;
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+
+        const tooltipTitle = document.createElement('h3');
+        tooltipTitle.className = 'tooltip-title';
+        tooltipTitle.textContent = 'Account';
+
+        const actionList = document.createElement('ul');
+        actionList.className = 'action-list';
+
+        const actions = [
+            { action: 'profile', text: 'Profilo' },
+            { action: 'favorites', text: 'Preferiti' },
+            { action: 'cart', text: 'Carrello' },
+            { action: 'orders', text: 'Ordini' },
+            { action: 'settings', text: 'Impostazioni account' },
+            { action: 'logout', text: 'Esci' }
+        ];
+
+        actions.forEach(function(actionData) {
+            const actionItem = document.createElement('li');
+            actionItem.className = 'action-item';
+            actionItem.dataset.action = actionData.action;
+
+            const actionText = document.createElement('span');
+            actionText.className = 'action-text';
+            actionText.textContent = actionData.text;
+
+            actionItem.appendChild(actionText);
+            actionList.appendChild(actionItem);
+        });
+
+        tooltip.appendChild(tooltipTitle);
+        tooltip.appendChild(actionList);
+        tooltipContainer.appendChild(linkText);
+        tooltipContainer.appendChild(tooltip);
+
+        userMenuItem.innerHTML = '';
+        userMenuItem.appendChild(tooltipContainer);
         
-        // Riassegna gli event listener
         setupActionListeners();
     }
 }
 
-// Aggiorna menu desktop per guest
 function updateDesktopGuestMenu() {
     const userMenuItem = document.querySelector('#user-menu-navbar .list-item:last-child');
     if (userMenuItem) {
-        userMenuItem.innerHTML = `
-            <a class='link-item' href='/login'>
-                <p class='link-text'>Accedi</p>
-            </a>
-        `;
+        const linkItem = document.createElement('a');
+        linkItem.className = 'link-item';
+        linkItem.href = '/login';
+
+        const linkText = document.createElement('p');
+        linkText.className = 'link-text';
+        linkText.textContent = 'Accedi';
+
+        linkItem.appendChild(linkText);
+        userMenuItem.innerHTML = '';
+        userMenuItem.appendChild(linkItem);
     }
 }
 
-// Aggiorna menu mobile per utente loggato
 function updateMobileUserMenu() {
     const mobileMenuNav = document.querySelector('.mobile-menu-nav');
     if (mobileMenuNav && currentUser) {
-        // Trova il div mobile-menu-membership
         const membershipDiv = mobileMenuNav.querySelector('.mobile-menu-membership');
         
         if (membershipDiv) {
-            // Sostituisce il contenuto con il profilo utente
-            membershipDiv.innerHTML = `
-                <div class="mobile-user-profile">
-                    <div class="mobile-user-collapse" onclick="toggleMobileUserMenu()">
-                        <div class="mobile-user-info">
-                            <div class="mobile-user-icon">
-                                <i class="fa-regular fa-user"></i>
-                            </div>
-                            <span class="mobile-user-name">${currentUser.first_name} ${currentUser.last_name}</span>
-                            <div class="mobile-user-arrow">
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mobile-user-menu hidden" id="mobile-user-menu">
-                        <ul class="mobile-user-actions">
-                            <li><a href="#" onclick="handleAction('profile')">Profilo</a></li>
-                            <li><a href="#" onclick="handleAction('favorites')">Preferiti</a></li>
-                            <li><a href="#" onclick="handleAction('cart')">Carrello</a></li>
-                            <li><a href="#" onclick="handleAction('orders')">Ordini</a></li>
-                            <li><a href="#" onclick="handleAction('settings')">Impostazioni account</a></li>
-                            <li><a href="#" onclick="handleAction('logout')">Esci</a></li>
-                        </ul>
-                    </div>
-                </div>
-            `;
+            const mobileUserProfile = document.createElement('div');
+            mobileUserProfile.className = 'mobile-user-profile';
+
+            const mobileUserCollapse = document.createElement('div');
+            mobileUserCollapse.className = 'mobile-user-collapse';
+            mobileUserCollapse.onclick = toggleMobileUserMenu;
+
+            const mobileUserInfo = document.createElement('div');
+            mobileUserInfo.className = 'mobile-user-info';
+
+            const mobileUserIcon = document.createElement('div');
+            mobileUserIcon.className = 'mobile-user-icon';
+            const userIcon = document.createElement('i');
+            userIcon.className = 'fa-regular fa-user';
+            mobileUserIcon.appendChild(userIcon);
+
+            const mobileUserName = document.createElement('span');
+            mobileUserName.className = 'mobile-user-name';
+            mobileUserName.textContent = currentUser.first_name + ' ' + currentUser.last_name;
+
+            const mobileUserArrow = document.createElement('div');
+            mobileUserArrow.className = 'mobile-user-arrow';
+            const arrowIcon = document.createElement('i');
+            arrowIcon.className = 'fa-solid fa-chevron-down';
+            mobileUserArrow.appendChild(arrowIcon);
+
+            mobileUserInfo.appendChild(mobileUserIcon);
+            mobileUserInfo.appendChild(mobileUserName);
+            mobileUserInfo.appendChild(mobileUserArrow);
+            mobileUserCollapse.appendChild(mobileUserInfo);
+
+            const mobileUserMenu = document.createElement('div');
+            mobileUserMenu.className = 'mobile-user-menu hidden';
+            mobileUserMenu.id = 'mobile-user-menu';
+
+            const mobileUserActions = document.createElement('ul');
+            mobileUserActions.className = 'mobile-user-actions';
+
+            const mobileActions = [
+                { action: 'profile', text: 'Profilo' },
+                { action: 'favorites', text: 'Preferiti' },
+                { action: 'cart', text: 'Carrello' },
+                { action: 'orders', text: 'Ordini' },
+                { action: 'settings', text: 'Impostazioni account' },
+                { action: 'logout', text: 'Esci' }
+            ];
+
+            mobileActions.forEach(function(actionData) {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = '#';
+                a.onclick = function() { handleAction(actionData.action); };
+                a.textContent = actionData.text;
+                li.appendChild(a);
+                mobileUserActions.appendChild(li);
+            });
+
+            mobileUserMenu.appendChild(mobileUserActions);
+            mobileUserProfile.appendChild(mobileUserCollapse);
+            mobileUserProfile.appendChild(mobileUserMenu);
+
+            membershipDiv.innerHTML = '';
+            membershipDiv.appendChild(mobileUserProfile);
         }
     }
 }
 
-// Aggiorna menu mobile per guest
 function updateMobileGuestMenu() {
     const mobileMenuNav = document.querySelector('.mobile-menu-nav');
     if (mobileMenuNav) {
         const membershipDiv = mobileMenuNav.querySelector('.mobile-menu-membership');
         
         if (membershipDiv) {
-            // Ripristina il contenuto originale per guest
-            membershipDiv.innerHTML = `
-                <p>Diventa Member Nike per accedere a prodotti fantastici, tanta ispirazione e storie sullo sport. 
-                    <a href="#" class="discover-more">Scopri di più</a>
-                </p>
-                <div class="mobile-menu-buttons">
-                    <button class="mobile-menu-btn primary" onclick="window.location.href='/register'">Unisciti a noi</button>
-                    <button class="mobile-menu-btn secondary" onclick="window.location.href='/login'">Accedi</button>
-                </div>
-            `;
+            const description = document.createElement('p');
+            description.textContent = 'Diventa Member Nike per accedere a prodotti fantastici, tanta ispirazione e storie sullo sport. ';
+            
+            const discoverMore = document.createElement('a');
+            discoverMore.href = '#';
+            discoverMore.className = 'discover-more';
+            discoverMore.textContent = 'Scopri di più';
+            description.appendChild(discoverMore);
+
+            const mobileMenuButtons = document.createElement('div');
+            mobileMenuButtons.className = 'mobile-menu-buttons';
+
+            const primaryBtn = document.createElement('button');
+            primaryBtn.className = 'mobile-menu-btn primary';
+            primaryBtn.onclick = function() { window.location.href = '/register'; };
+            primaryBtn.textContent = 'Unisciti a noi';
+
+            const secondaryBtn = document.createElement('button');
+            secondaryBtn.className = 'mobile-menu-btn secondary';
+            secondaryBtn.onclick = function() { window.location.href = '/login'; };
+            secondaryBtn.textContent = 'Accedi';
+
+            mobileMenuButtons.appendChild(primaryBtn);
+            mobileMenuButtons.appendChild(secondaryBtn);
+
+            membershipDiv.innerHTML = '';
+            membershipDiv.appendChild(description);
+            membershipDiv.appendChild(mobileMenuButtons);
         }
     }
 }
 
-// Toggle del menu utente mobile
 function toggleMobileUserMenu() {
     const userMenu = document.getElementById('mobile-user-menu');
     const arrow = document.querySelector('.mobile-user-arrow i');
@@ -170,7 +232,6 @@ function toggleMobileUserMenu() {
     if (userMenu) {
         userMenu.classList.toggle('hidden');
         
-        // Ruota la freccia
         if (arrow) {
             if (userMenu.classList.contains('hidden')) {
                 arrow.style.transform = 'rotate(0deg)';
@@ -181,22 +242,20 @@ function toggleMobileUserMenu() {
     }
 }
 
-// Riassegna gli event listener per le azioni
 function setupActionListeners() {
-    document.querySelectorAll('.action-item').forEach(item => {
+    document.querySelectorAll('.action-item').forEach(function(item) {
         const action = item.getAttribute("data-action");
-        // Rimuovi listener esistenti
         item.replaceWith(item.cloneNode(true));
     });
     
-    // Riassegna i nuovi listener
-    document.querySelectorAll('.action-item').forEach(item => {
+    document.querySelectorAll('.action-item').forEach(function(item) {
         const action = item.getAttribute("data-action");
-        item.addEventListener("click", () => handleAction(action));
+        item.addEventListener("click", function() {
+            handleAction(action);
+        });
     });
 }
 
-// Funzione per gestire le azioni (modificata per logout API)
 function handleAction(action) {
     switch (action) {
         case 'profile':
@@ -222,30 +281,27 @@ function handleAction(action) {
     }
 }
 
-// Logout tramite API
-async function performLogout() {
-    try {
-        const response = await fetch('/api/auth/logout', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.ok) {
-            currentUser = null;
-            updateUIForGuestUser();
-            // Redirect o mostra messaggio di successo
-            window.location.href = '/';
-        } else {
-            console.error('Errore durante il logout');
+function performLogout() {
+    fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || '',
+            'Content-Type': 'application/json'
         }
-    } catch (error) {
-        console.error('Errore durante il logout:', error);
-        // Fallback: usa il logout tradizionale
-        window.location.href = "/logout";
-    }
+    })
+        .then(function(response) {
+            if (response.ok) {
+                currentUser = null;
+                updateUIForGuestUser();
+                window.location.href = '/';
+            } else {
+                console.error('Errore durante il logout');
+            }
+        })
+        .catch(function(error) {
+            console.error('Errore durante il logout:', error);
+            window.location.href = "/logout";
+        });
 }
 
 function onOpenSearch(event) {
@@ -276,47 +332,18 @@ searchBarContainer.addEventListener("click", onOpenSearch);
 let closeSearch = document.querySelector(".close-search-btn");
 closeSearch.addEventListener("click", onCloseSearch);
 
-function handleAction(action) {
-    switch (action) {
-        case 'profile':
-            window.location.href = "/account";
-            break;
-        case 'favorites':
-            window.location.href = "/account/favorites";
-            break;
-        case 'cart':
-            window.location.href = "/account/cart";
-            break;
-        case 'orders':
-            window.location.href = "/account/orders";
-            break;
-        case 'settings':
-            window.location.href = "/account/settings";
-            break;
-        case 'logout':
-            window.location.href = "/logout";
-            break;
-        default:
-            break;
-    }
-}
-
-document.querySelectorAll('.action-item').forEach(item => {
-    const action = item.getAttribute("data-action");
-    item.addEventListener("click", () => handleAction(action))
-});
-
 let cartCount = 0;
 let favoritesCount = 0;
 
-function showNotificationPopup(type, title, message, actions = []) {
+function showNotificationPopup(type, title, message, actions) {
+    actions = actions || [];
     const existingPopup = document.querySelector('.notification-popup');
     if (existingPopup) {
         existingPopup.remove();
     }
 
     const popup = document.createElement('div');
-    popup.className = `notification-popup ${type}`;
+    popup.className = 'notification-popup ' + type;
 
     const popupHeader = document.createElement('div');
     popupHeader.className = 'popup-header';
@@ -338,10 +365,10 @@ function showNotificationPopup(type, title, message, actions = []) {
         const popupActions = document.createElement('div');
         popupActions.className = 'popup-actions';
 
-        actions.forEach(action => {
+        actions.forEach(function(action) {
             const actionBtn = document.createElement('a');
             actionBtn.href = action.url;
-            actionBtn.className = `popup-btn ${action.primary ? 'primary' : ''}`;
+            actionBtn.className = 'popup-btn ' + (action.primary ? 'primary' : '');
             actionBtn.textContent = action.text;
             popupActions.appendChild(actionBtn);
         });
@@ -354,7 +381,6 @@ function showNotificationPopup(type, title, message, actions = []) {
     popup.offsetHeight;
     popup.classList.add('show');
 }
-
 
 function updateCartCounter(quantity) {
     cartCount += quantity;
@@ -380,73 +406,44 @@ function updateFavoritesCounter(quantity) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Mobile Menu JavaScript - seguendo le slide del corso
-// Usa querySelector, addEventListener, classList come mostrato nelle slide
-
-// Funzione per aprire il menu (seguendo le slide)
 function openMobileMenu() {
     const menu = document.querySelector('#mobile-menu');
     const overlay = document.querySelector('#mobile-menu-overlay');
 
-    // Aggiungi classi usando classList.add come nelle slide
     menu.classList.remove('hidden');
     overlay.classList.remove('hidden');
 }
 
-// Funzione per chiudere il menu (seguendo le slide)  
 function closeMobileMenu() {
     const menu = document.querySelector('#mobile-menu');
     const overlay = document.querySelector('#mobile-menu-overlay');
 
-    // Rimuovi classi usando classList.remove come nelle slide
     menu.classList.add('hidden');
     overlay.classList.add('hidden');
 }
 
-// Event handler per il click sul pulsante hamburger (seguendo le slide)
 function onHamburgerClick() {
     openMobileMenu();
 }
 
-// Event handler per chiudere il menu (seguendo le slide)
 function onCloseClick() {
     closeMobileMenu();
 }
 
-// Event handler per chiudere cliccando sull'overlay (seguendo le slide)
 function onOverlayClick() {
     closeMobileMenu();
 }
 
-// Inizializzazione - eseguita dopo il caricamento del DOM grazie a defer
-// Seguendo le slide: querySelector + addEventListener
-
-// Trova il pulsante hamburger e aggiungi event listener
 const hamburgerButton = document.querySelector('.hamburger-button');
 if (hamburgerButton) {
     hamburgerButton.addEventListener('click', onHamburgerClick);
 }
 
-// Trova il pulsante di chiusura e aggiungi event listener  
 const closeButton = document.querySelector('.mobile-menu-close');
 if (closeButton) {
     closeButton.addEventListener('click', onCloseClick);
 }
 
-// Trova l'overlay e aggiungi event listener
 const overlay = document.querySelector('#mobile-menu-overlay');
 if (overlay) {
     overlay.addEventListener('click', onOverlayClick);

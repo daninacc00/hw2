@@ -2,8 +2,10 @@ loadFavoriteProducts();
 
 function loadFavoriteProducts() {
     fetch("/api/favorites/get")
-        .then(response => response.json())
-        .then(data => {
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
             if (data.success) {
                 renderProducts(data.data);
             } else {
@@ -14,7 +16,7 @@ function loadFavoriteProducts() {
                 }
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore nel caricamento dei prodotti preferiti:', error);
             showErrorMessage('Errore nel caricamento dei prodotti. Riprova più tardi.');
         });
@@ -35,7 +37,7 @@ function renderProducts(products) {
         return;
     }
 
-    products.forEach(product => {
+    products.forEach(function(product) {
         const productCard = createProductCard(product);
         productsGrid.appendChild(productCard);
     });
@@ -84,18 +86,18 @@ function createProductCard(product) {
 
     const categoryDiv = document.createElement('div');
     categoryDiv.className = 'product-category';
-    const categoryText = `${product.section_name} - ${product.category_name}`;
+    const categoryText = product.section_name + ' - ' + product.category_name;
     categoryDiv.textContent = categoryText;
 
-    principalInfo.appendChild(name)
-    principalInfo.appendChild(categoryDiv)
+    principalInfo.appendChild(name);
+    principalInfo.appendChild(categoryDiv);
 
     const price = document.createElement('div');
     price.className = 'product-price';
-    price.textContent = `€${product.price}`
+    price.textContent = '€' + product.price;
 
     const cartButton = document.createElement('button');
-    cartButton.className = `product-status ${product.isInCart ? 'status-added' : 'status-add-to-cart'}`;
+    cartButton.className = 'product-status ' + (product.isInCart ? 'status-added' : 'status-add-to-cart');
     cartButton.addEventListener('click', function (e) {
         e.preventDefault();
         handleCartToggle(product.id, cartButton, product.isInCart);
@@ -133,11 +135,13 @@ function handleRemoveFromFavorites(productId, cardElement) {
         method: 'POST',
         body: formData,
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
         }
     })
-        .then(response => response.json())
-        .then(result => {
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
             if (result.success) {
                 cardElement.style.opacity = '0.5';
                 loadFavoriteProducts();
@@ -149,10 +153,11 @@ function handleRemoveFromFavorites(productId, cardElement) {
                     showErrorMessage(result.message || 'Errore durante la rimozione dai preferiti');
                 }
             }
-        }).catch(error => {
+        })
+        .catch(function(error) {
             console.error('Errore nella rimozione dai preferiti:', error);
             showErrorMessage('Errore nella rimozione del prodotto. Riprova.');
-        })
+        });
 }
 
 function handleCartToggle(productId, buttonElement, isCurrentlyInCart) {
@@ -177,11 +182,13 @@ function handleRemoveFromCart(productId, buttonElement) {
         method: 'POST',
         body: formData,
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
         }
     })
-        .then(response => response.json())
-        .then(result => {
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
             if (result.success) {
                 buttonElement.className = 'product-status status-add-to-cart';
                 buttonElement.textContent = 'Aggiungi al carrello';
@@ -197,10 +204,9 @@ function handleRemoveFromCart(productId, buttonElement) {
                     showErrorMessage(result.message || 'Errore durante la rimozione dal carrello');
                     buttonElement.innerHTML = originalText;
                 }
-
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore nella rimozione dal carrello:', error);
             showErrorMessage('Errore nella rimozione del prodotto. Riprova.');
             buttonElement.innerHTML = originalText;
@@ -251,14 +257,18 @@ function showAddToCartModal(productId, buttonElement) {
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 
-    closeBtn.addEventListener('click', () => document.body.removeChild(modal));
+    closeBtn.addEventListener('click', function() {
+        document.body.removeChild(modal);
+    });
     modal.addEventListener('click', function (e) {
         if (e.target === modal) document.body.removeChild(modal);
     });
 
-    fetch(`/api/favorites/product?id=${productId}`)
-        .then(response => response.json())
-        .then(result => {
+    fetch('/api/favorites/product?id=' + productId)
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
             if (result.success) {
                 renderCartModal(result.data, modal, buttonElement);
             } else {
@@ -266,7 +276,7 @@ function showAddToCartModal(productId, buttonElement) {
                 document.body.removeChild(modal);
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore:', error);
             showErrorMessage('Errore nel caricamento delle opzioni prodotto');
             document.body.removeChild(modal);
@@ -275,7 +285,7 @@ function showAddToCartModal(productId, buttonElement) {
 
 function renderCartModal(product, modal, buttonElement) {
     const modalBody = modal.querySelector('.cart-modal-body');
-    let selectedColorId = product.colors[0]?.id || null;
+    let selectedColorId = product.colors[0] ? product.colors[0].id : null;
     let selectedSizeId = null;
 
     modalBody.innerHTML = '';
@@ -288,7 +298,7 @@ function renderCartModal(product, modal, buttonElement) {
 
     const productPrice = document.createElement('p');
     productPrice.className = 'product-price';
-    productPrice.textContent = `€${product.price}`;
+    productPrice.textContent = '€' + product.price;
 
     productOptions.appendChild(productName);
     productOptions.appendChild(productPrice);
@@ -303,7 +313,7 @@ function renderCartModal(product, modal, buttonElement) {
         const colorOptions = document.createElement('div');
         colorOptions.className = 'color-options';
 
-        product.colors.forEach((color, index) => {
+        product.colors.forEach(function(color, index) {
             const colorOption = document.createElement('div');
             colorOption.className = 'color-option';
             if (index === 0) colorOption.classList.add('selected');
@@ -312,7 +322,7 @@ function renderCartModal(product, modal, buttonElement) {
             colorOption.style.backgroundColor = color.hex_code;
 
             colorOption.addEventListener('click', function () {
-                colorOptions.querySelectorAll('.color-option').forEach(el => {
+                colorOptions.querySelectorAll('.color-option').forEach(function(el) {
                     el.classList.remove('selected');
                 });
                 colorOption.classList.add('selected');
@@ -337,16 +347,16 @@ function renderCartModal(product, modal, buttonElement) {
         const sizeOptions = document.createElement('div');
         sizeOptions.className = 'size-options';
 
-        product.sizes.forEach(size => {
+        product.sizes.forEach(function(size) {
             const sizeOption = document.createElement('button');
             sizeOption.className = 'size-option';
             sizeOption.dataset.sizeId = size.id;
             sizeOption.disabled = size.pivot.stock_quantity <= 0;
-            sizeOption.textContent = `EU ${size.value} ${size.pivot.stock_quantity <= 0 ? '(Esaurito)' : ''}`;
+            sizeOption.textContent = 'EU ' + size.value + (size.pivot.stock_quantity <= 0 ? ' (Esaurito)' : '');
 
             sizeOption.addEventListener('click', function () {
                 if (!sizeOption.disabled) {
-                    sizeOptions.querySelectorAll('.size-option').forEach(el => {
+                    sizeOptions.querySelectorAll('.size-option').forEach(function(el) {
                         el.classList.remove('selected');
                     });
                     sizeOption.classList.add('selected');
@@ -396,11 +406,13 @@ function addToCartWithOptions(productId, colorId, sizeId, buttonElement, modal) 
         method: 'POST',
         body: formData,
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
         }
     })
-        .then(response => response.json())
-        .then(result => {
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
             if (result.success) {
                 buttonElement.className = 'product-status status-added';
 
@@ -423,7 +435,7 @@ function addToCartWithOptions(productId, colorId, sizeId, buttonElement, modal) 
                 addBtn.textContent = 'Aggiungi al carrello';
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore nell\'aggiunta al carrello:', error);
             showErrorMessage('Errore nell\'aggiunta al carrello. Riprova.');
             addBtn.disabled = false;
@@ -492,10 +504,12 @@ function showSuccessMessage(message) {
 
 function showMessage(message, type) {
     const existingMessages = document.querySelectorAll('.feedback-message');
-    existingMessages.forEach(msg => msg.remove());
+    existingMessages.forEach(function(msg) {
+        msg.remove();
+    });
 
     const messageElement = document.createElement('div');
-    messageElement.className = `feedback-message feedback-${type}`;
+    messageElement.className = 'feedback-message feedback-' + type;
     messageElement.textContent = message;
 
     document.body.appendChild(messageElement);

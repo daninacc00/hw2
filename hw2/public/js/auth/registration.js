@@ -7,8 +7,8 @@ function validateUsername() {
     }
 
     if (username.length < 3) {
-        showError(username, 'Username deve contenere almeno 3 caratteri');
-        isValid = false;
+        showError(usernameField, 'Username deve contenere almeno 3 caratteri');
+        return false;
     }
 
     removeError(usernameField);
@@ -33,7 +33,7 @@ function validateEmail() {
 }
 
 function validatePassword() {
-    const password = passwordField.value
+    const password = passwordField.value;
 
     if (password === '') {
         showError(passwordField, 'Password è obbligatoria');
@@ -50,8 +50,8 @@ function validatePassword() {
 }
 
 function validateConfirmPassword() {
-    const password = passwordField.value
-    const confirmPassword = confirmField.value
+    const password = passwordField.value;
+    const confirmPassword = confirmField.value;
 
     if (confirmPassword === '') {
         showError(confirmField, 'Conferma password è obbligatoria');
@@ -67,9 +67,7 @@ function validateConfirmPassword() {
     return true;
 }
 
-
 function validate() {
-
     const isUsernameValid = validateUsername();
     const isEmailValid = validateEmail();
     const isPasswordValid = validatePassword();
@@ -85,11 +83,15 @@ function setFormLoading(loading) {
     if (loading) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Registrazione in corso...';
-        inputs.forEach(input => input.disabled = true);
+        inputs.forEach(function(input) {
+            input.disabled = true;
+        });
     } else {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Registrati';
-        inputs.forEach(input => input.disabled = false);
+        inputs.forEach(function(input) {
+            input.disabled = false;
+        });
     }
 }
 
@@ -121,7 +123,6 @@ function handleRegister(e) {
     formData.append('nome', document.getElementById('nome').value);
     formData.append('cognome', document.getElementById('cognome').value);
     formData.append('password', document.getElementById('password').value);
-    formData.append('password_confirm', document.getElementById('password_confirm').value);
     formData.append('password_confirm', document.getElementById('password_confirm').value);
     formData.append('_token', csrf_token);
 

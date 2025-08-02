@@ -22,14 +22,17 @@ function validatePasswordStrength(password) {
         special: /[^a-zA-Z0-9]/.test(password)
     };
 
-    for (const [key, isValid] of Object.entries(checks)) {
-        const container = document.getElementById(key);
+    for (const key in checks) {
+        if (checks.hasOwnProperty(key)) {
+            const isValid = checks[key];
+            const container = document.getElementById(key);
 
-        const existingIcon = container.querySelector("i");
-        if (existingIcon){
-            existingIcon.className = `fa-solid ${isValid ? "fa-check" : "fa-xmark"}`
+            const existingIcon = container.querySelector("i");
+            if (existingIcon){
+                existingIcon.className = "fa-solid " + (isValid ? "fa-check" : "fa-xmark");
+            }
+
+            container.classList.toggle('valid', isValid);
         }
-
-        container.classList.toggle('valid', isValid);
     }
 }

@@ -21,7 +21,6 @@ let isLoading = false;
 init();
 
 function init() {
-    // NUOVO: Carica i filtri dalla URL prima di tutto
     loadFiltersFromURL();
     
     const sortBtn = document.querySelector('.sort-btn');
@@ -38,11 +37,9 @@ function init() {
     loadInitialData();
 }
 
-// NUOVO: Funzione per leggere i parametri dalla URL
 function loadFiltersFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     
-    // Gender - converte le stringhe ai numeri che usa il tuo sistema
     if (urlParams.get('gender')) {
         const genderValue = urlParams.get('gender');
         if (genderValue === 'men') currentFilters.gender = [0];
@@ -50,44 +47,36 @@ function loadFiltersFromURL() {
         else if (genderValue === 'kids') currentFilters.gender = [2];
     }
     
-    // Section - CORRETTO: ora viene gestito
     if (urlParams.get('section')) {
         currentFilters.section = urlParams.get('section');
     }
     
-    // Sport 
     if (urlParams.get('sport')) {
         currentFilters.sport = [urlParams.get('sport')];
     }
     
-    // Sort
     if (urlParams.get('sort')) {
         currentFilters.sort = urlParams.get('sort');
     }
     
-    // NUOVO: Aggiorna il titolo della categoria in base ai filtri
     updateCategoryTitleFromFilters();
     
-    // NUOVO: Pre-seleziona i filtri nell'interfaccia dopo che sono stati creati
     setTimeout(preselectFiltersInUI, 100);
 }
 
-// NUOVO: Aggiorna il titolo in base ai filtri dalla URL
 function updateCategoryTitleFromFilters() {
     const title = document.getElementById('categoryTitle');
     if (title) {
         let newTitle = '';
         
-        // Prima determina la sezione
         if (currentFilters.section === 'shoes') {
             newTitle = 'Scarpe';
         } else if (currentFilters.section === 'wear') {
             newTitle = 'Abbigliamento';
         } else {
-            newTitle = 'Sneakers e scarpe'; // Default
+            newTitle = 'Sneakers e scarpe';
         }
         
-        // Poi aggiungi il genere
         if (currentFilters.gender.includes(0)) {
             newTitle += ' da uomo';
         } else if (currentFilters.gender.includes(1)) {
@@ -96,7 +85,6 @@ function updateCategoryTitleFromFilters() {
             newTitle += ' per bambini';
         }
         
-        // Aggiungi sport se presente
         if (currentFilters.sport && currentFilters.sport.length > 0) {
             const sportNames = {
                 'football': 'Calcio',
@@ -106,33 +94,31 @@ function updateCategoryTitleFromFilters() {
                 'lifestyle': 'Lifestyle'
             };
             const sportName = sportNames[currentFilters.sport[0]] || currentFilters.sport[0];
-            newTitle += ` - ${sportName}`;
+            newTitle += ' - ' + sportName;
         }
         
         title.textContent = newTitle;
     }
 }
 
-// NUOVO: Pre-seleziona i filtri nell'interfaccia dopo che sono stati creati
 function preselectFiltersInUI() {
-    // Pre-seleziona gender checkboxes
-    currentFilters.gender.forEach(genderId => {
+    currentFilters.gender.forEach(function(genderId) {
         const checkbox = document.getElementById(genderId.toString());
         if (checkbox) {
             checkbox.checked = true;
         }
     });
-    
-    // Pre-seleziona altri filtri se implementati...
 }
 
 function setupFilterSections() {
     const filterSections = document.querySelectorAll('.filter-section');
 
-    filterSections.forEach(section => {
+    filterSections.forEach(function(section) {
         const title = section.querySelector('.filter-title');
         if (title) {
-            title.addEventListener('click', () => toggleFilterSection(section));
+            title.addEventListener('click', function() {
+                toggleFilterSection(section);
+            });
         }
     });
 
@@ -141,7 +127,7 @@ function setupFilterSections() {
 
 function createFilterControls() {
     createGenderFilter();
-    createSectionFilter(); // NUOVO: Aggiunto filtro sezioni
+    createSectionFilter();
     createPriceFilter();
     createSizeFilter();
     createColorFilter();
@@ -153,7 +139,7 @@ function createGenderFilter() {
     const genders = [
         { name: 'Uomo', slug: 0 },
         { name: 'Donna', slug: 1 },
-        { name: 'Unisex', slug: 2 },
+        { name: 'Unisex', slug: 2 }
     ];
 
     const sections = document.querySelectorAll('.filter-section');
@@ -198,7 +184,6 @@ function createGenderFilter() {
     }
 }
 
-// NUOVO: Filtro per le sezioni
 function createSectionFilter() {
     const sectionOptions = [
         { name: 'Scarpe', slug: 'shoes' },
@@ -222,7 +207,6 @@ function createSectionFilter() {
         const sectionRadios = document.createElement("div");
         sectionRadios.classList.add("section-options");
 
-        // Opzione "Tutti"
         const allLabel = document.createElement("label");
         allLabel.classList.add("radio-label");
 
@@ -230,7 +214,7 @@ function createSectionFilter() {
         allRadio.type = "radio";
         allRadio.name = "section-filter";
         allRadio.value = "";
-        allRadio.checked = !currentFilters.section; // Selezionato se nessuna sezione
+        allRadio.checked = !currentFilters.section;
 
         const allText = document.createElement("span");
         allText.textContent = "Tutti";
@@ -239,7 +223,6 @@ function createSectionFilter() {
         allLabel.appendChild(allText);
         sectionRadios.appendChild(allLabel);
 
-        // Opzioni sezioni
         sectionOptions.forEach(function (sectionOpt) {
             const label = document.createElement("label");
             label.classList.add("radio-label");
@@ -419,7 +402,7 @@ function createDiscountFilter() {
     const discounts = [
         { name: "In offerta", slug: "on-sale" },
         { name: "Bestseller", slug: "bestseller" },
-        { name: "Nuovi arrivi", slug: "new-arrival" },
+        { name: "Nuovi arrivi", slug: "new-arrival" }
     ];
 
     const sections = document.querySelectorAll('.filter-section');
@@ -540,11 +523,10 @@ function handleGenderFilter(checkbox) {
     applyFilters();
 }
 
-// NUOVO: Gestisce il filtro sezioni
 function handleSectionFilter(radio) {
     if (radio.checked) {
         currentFilters.section = radio.value || null;
-        updateCategoryTitleFromFilters(); // Aggiorna il titolo
+        updateCategoryTitleFromFilters();
         applyFilters();
     }
 }
@@ -589,7 +571,7 @@ function applyPriceFilter() {
 
 function handleDiscountFilter(checkbox) {
     const filterId = checkbox.id.replace('-', '_');
-    currentFilters[`is_${filterId}`] = checkbox.checked;
+    currentFilters['is_' + filterId] = checkbox.checked;
     applyFilters();
 }
 
@@ -622,18 +604,20 @@ function createSortMenu() {
     const menu = document.createElement('div');
     menu.className = 'sort-menu';
 
-    sortOptions.forEach(option => {
+    sortOptions.forEach(function(option) {
         const sortOption = document.createElement("div");
         sortOption.classList.add("sort-option");
         sortOption.setAttribute("data-sort", option.value);
-        sortOption.textContent = option.label
+        sortOption.textContent = option.label;
         menu.appendChild(sortOption);
-    })
+    });
 
     sortBtn.parentNode.appendChild(menu);
 
-    menu.querySelectorAll('.sort-option').forEach(option => {
-        option.addEventListener('click', () => changeSortOrder(option.dataset.sort));
+    menu.querySelectorAll('.sort-option').forEach(function(option) {
+        option.addEventListener('click', function() {
+            changeSortOrder(option.dataset.sort);
+        });
     });
 
     document.addEventListener('click', handleCloseMenu);
@@ -658,7 +642,7 @@ function toggleFilters() {
     const btn = document.querySelector('.filter-btn');
 
     filters.classList.toggle('hidden');
-    const isHidden = filters.classList.contains('hidden')
+    const isHidden = filters.classList.contains('hidden');
     btn.textContent = isHidden ? 'Mostra filtri' : 'Nascondi filtri';
 }
 
@@ -666,7 +650,8 @@ function loadInitialData() {
     loadProducts();
 }
 
-function loadProducts(append = false) {
+function loadProducts(append) {
+    append = append || false;
     if (isLoading) return;
 
     isLoading = true;
@@ -674,13 +659,15 @@ function loadProducts(append = false) {
 
     const params = buildApiParams();
 
-    fetch(`/api/shop/products?${params}`, {
+    fetch('/api/shop/products?' + params, {
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
         }
     })
-        .then(response => response.json())
-        .then(data => {
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
             if (data.success) {
                 if (append) {
                     appendProducts(data.data.products);
@@ -692,30 +679,36 @@ function loadProducts(append = false) {
                 showError(data.message);
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Error loading products:', error);
             showError('Errore nel caricamento dei prodotti');
         })
-        .finally(function () {
+        .finally(function() {
             isLoading = false;
             hideLoading();
-        })
+        });
 }
 
 function buildApiParams() {
     const params = [];
 
-    Object.entries(currentFilters).forEach(([key, value]) => {
-        if (value && value !== '') {
-            if (Array.isArray(value)) {
-                value.forEach(v => params.push(`${key}[]=${encodeURIComponent(v)}`));
-            } else {
-                params.push(`${key}=${encodeURIComponent(value)}`);
+    for (const key in currentFilters) {
+        if (currentFilters.hasOwnProperty(key)) {
+            const value = currentFilters[key];
+            if (value && value !== '') {
+                if (Array.isArray(value)) {
+                    value.forEach(function(v) {
+                        params.push(key + '[]=' + encodeURIComponent(v));
+                    });
+                } else {
+                    params.push(key + '=' + encodeURIComponent(value));
+                }
             }
         }
-    });
+    }
 
-    params.push(`page=${currentPage}`, `limit=${itemsPerPage}`);
+    params.push('page=' + currentPage);
+    params.push('limit=' + itemsPerPage);
     return params.join('&');
 }
 
@@ -734,20 +727,20 @@ function renderProducts(products) {
         return;
     }
 
-    products.forEach(product => {
+    products.forEach(function(product) {
         const productCard = createProductCard(product);
         grid.appendChild(productCard);
-    })
+    });
 }
 
 function appendProducts(products) {
     const grid = document.getElementById('product-grid');
     if (!grid) return;
 
-    products.forEach(product => {
+    products.forEach(function(product) {
         const productCard = createProductCard(product);
         grid.appendChild(productCard);
-    })
+    });
 }
 
 function createProductCard(product) {
@@ -756,8 +749,7 @@ function createProductCard(product) {
     card.dataset.productId = product.id;
 
     const productLink = document.createElement('a');
-    // Link aggiornato per Laravel
-    productLink.href = `/product/${product.id}`;
+    productLink.href = '/product/' + product.id;
     productLink.className = 'product-link';
 
     const imageContainer = document.createElement('div');
@@ -805,17 +797,29 @@ function createProductCard(product) {
     if (product.color_count > 1) {
         const colorCount = document.createElement('p');
         colorCount.className = 'color-count';
-        colorCount.textContent = `${product.color_count} colori`;
+        colorCount.textContent = product.color_count + ' colori';
         info.appendChild(colorCount);
     }
 
     const ratingDiv = document.createElement('div');
     ratingDiv.className = 'product-rating';
-    ratingDiv.innerHTML = renderStars(product.rating);
+    const starsHtml = renderStars(product.rating);
+    
+    for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('i');
+        if (i <= product.rating) {
+            star.className = 'fa-solid fa-star';
+        } else if (i - 0.5 <= product.rating) {
+            star.className = 'fa-solid fa-star-half-alt';
+        } else {
+            star.className = 'fa-regular fa-star';
+        }
+        ratingDiv.appendChild(star);
+    }
 
     const ratingCount = document.createElement('span');
     ratingCount.className = 'rating-count';
-    ratingCount.textContent = `(${product.rating_count})`;
+    ratingCount.textContent = '(' + product.rating_count + ')';
     ratingDiv.appendChild(ratingCount);
 
     info.appendChild(ratingDiv);
@@ -825,19 +829,19 @@ function createProductCard(product) {
 
     const currentPrice = document.createElement('span');
     currentPrice.className = 'current-price';
-    currentPrice.textContent = `€${product.price}`;
+    currentPrice.textContent = '€' + product.price;
     priceDiv.appendChild(currentPrice);
 
     if (product.original_price && product.original_price > product.price && product.is_on_sale) {
         const originalPrice = document.createElement('span');
         originalPrice.className = 'original-price';
-        originalPrice.textContent = `€${product.original_price}`;
+        originalPrice.textContent = '€' + product.original_price;
         priceDiv.appendChild(originalPrice);
 
         if (product.discount_percentage > 0) {
             const discount = document.createElement("span");
             discount.classList.add("discount");
-            discount.textContent = `-${product.discount_percentage}%`;
+            discount.textContent = '-' + product.discount_percentage + '%';
             priceDiv.appendChild(discount);
         }
     }
@@ -887,7 +891,9 @@ function showLoading() {
 }
 
 function hideLoading() {
-    document.querySelectorAll('.loading').forEach(el => el.remove());
+    document.querySelectorAll('.loading').forEach(function(el) {
+        el.remove();
+    });
 }
 
 function showError(message) {

@@ -1,23 +1,19 @@
-// cart.js - JavaScript per il carrello con collegamento al checkout
-
 loadCartItems();
 
 function loadCartItems() {
     fetch("/api/cart/get")
-        .then(response => {
-            // Controllo response.ok prima di processare JSON
+        .then(function(response) {
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
-                    // Utente non autenticato
                     showAuthRequiredState('Devi essere loggato per accedere al tuo carrello');
                     return;
                 }
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
             }
             return response.json();
         })
-        .then(data => {
-            if (!data) return; // Caso redirect
+        .then(function(data) {
+            if (!data) return;
             
             if (data.success) {
                 renderCart(data.data);
@@ -29,7 +25,7 @@ function loadCartItems() {
                 }
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore nel caricamento del carrello:', error);
             showErrorMessage('Errore nel caricamento del carrello. Riprova più tardi.');
         });
@@ -89,7 +85,7 @@ function renderCart(cartData) {
     const cartItems = document.createElement('div');
     cartItems.className = 'cart-items';
 
-    cartData.items.forEach(item => {
+    cartData.items.forEach(function(item) {
         const cartItem = createCartItem(item);
         cartItems.appendChild(cartItem);
     });
@@ -119,11 +115,11 @@ function createCartItem(item) {
 
     const colorInfo = document.createElement('div');
     colorInfo.className = 'item-info';
-    colorInfo.textContent = `Colore: ${item.color_name}`;
+    colorInfo.textContent = 'Colore: ' + item.color_name;
 
     const sizeInfo = document.createElement('div');
     sizeInfo.className = 'item-info';
-    sizeInfo.textContent = `Taglia: EU ${item.size_value}`;
+    sizeInfo.textContent = 'Taglia: EU ' + item.size_value;
 
     const itemPrice = document.createElement('div');
     itemPrice.className = 'item-price';
@@ -140,7 +136,9 @@ function createCartItem(item) {
     const removeBtn = document.createElement('button');
     removeBtn.className = 'remove-btn';
     removeBtn.textContent = 'Rimuovi';
-    removeBtn.addEventListener('click', () => removeFromCart(item.product_id));
+    removeBtn.addEventListener('click', function() {
+        removeFromCart(item.product_id);
+    });
 
     const quantityControls = document.createElement('div');
     quantityControls.className = 'quantity-controls';
@@ -148,7 +146,9 @@ function createCartItem(item) {
     const decreaseBtn = document.createElement('button');
     decreaseBtn.className = 'quantity-btn';
     decreaseBtn.textContent = '-';
-    decreaseBtn.addEventListener('click', () => updateQuantity(item.cart_item_id, item.quantity - 1));
+    decreaseBtn.addEventListener('click', function() {
+        updateQuantity(item.cart_item_id, item.quantity - 1);
+    });
 
     const quantityDisplay = document.createElement('span');
     quantityDisplay.className = 'quantity-display';
@@ -157,7 +157,9 @@ function createCartItem(item) {
     const increaseBtn = document.createElement('button');
     increaseBtn.className = 'quantity-btn';
     increaseBtn.textContent = '+';
-    increaseBtn.addEventListener('click', () => updateQuantity(item.cart_item_id, item.quantity + 1));
+    increaseBtn.addEventListener('click', function() {
+        updateQuantity(item.cart_item_id, item.quantity + 1);
+    });
 
     quantityControls.appendChild(decreaseBtn);
     quantityControls.appendChild(quantityDisplay);
@@ -204,14 +206,11 @@ function createCartSummary(summary) {
     totalRow.appendChild(totalLabel);
     totalRow.appendChild(totalValue);
 
-    // Bottone checkout con event listener (seguendo le slide)
     const checkoutBtn = document.createElement('button');
     checkoutBtn.className = 'checkout-btn';
     checkoutBtn.textContent = 'Procedi al checkout';
     
-    // Aggiungi event listener per reindirizzare al checkout
     checkoutBtn.addEventListener('click', function() {
-        // Verifica che ci siano prodotti nel carrello
         if (summary.items_count > 0) {
             window.location.href = '/checkout';
         } else {
@@ -238,18 +237,18 @@ function removeFromCart(productId) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-        .then(response => {
+        .then(function(response) {
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
                     window.location.href = '/login';
                     return;
                 }
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
             }
             return response.json();
         })
-        .then(data => {
-            if (!data) return; // Caso redirect
+        .then(function(data) {
+            if (!data) return;
             
             if (data.success) {
                 showSuccessMessage('Prodotto rimosso dal carrello');
@@ -263,7 +262,7 @@ function removeFromCart(productId) {
                 }
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore:', error);
             showErrorMessage('Errore nella rimozione del prodotto');
         });
@@ -286,18 +285,18 @@ function updateQuantity(cartItemId, newQuantity) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-        .then(response => {
+        .then(function(response) {
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
                     window.location.href = '/login';
                     return;
                 }
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
             }
             return response.json();
         })
-        .then(data => {
-            if (!data) return; // Caso redirect
+        .then(function(data) {
+            if (!data) return;
             
             if (data.success) {
                 showSuccessMessage('Quantità aggiornata');
@@ -310,7 +309,7 @@ function updateQuantity(cartItemId, newQuantity) {
                 }
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore:', error);
             showErrorMessage('Errore nell\'aggiornamento della quantità');
         });
@@ -327,18 +326,18 @@ function removeCartItem(cartItemId) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-        .then(response => {
+        .then(function(response) {
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
                     window.location.href = '/login';
                     return;
                 }
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
             }
             return response.json();
         })
-        .then(data => {
-            if (!data) return; // Caso redirect
+        .then(function(data) {
+            if (!data) return;
             
             if (data.success) {
                 showSuccessMessage('Elemento rimosso dal carrello');
@@ -352,7 +351,7 @@ function removeCartItem(cartItemId) {
                 }
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore:', error);
             showErrorMessage('Errore nella rimozione');
         });
@@ -416,10 +415,12 @@ function showSuccessMessage(message) {
 
 function showMessage(message, type) {
     const existingMessages = document.querySelectorAll('.feedback-message');
-    existingMessages.forEach(msg => msg.remove());
+    existingMessages.forEach(function(msg) {
+        msg.remove();
+    });
 
     const messageElement = document.createElement('div');
-    messageElement.className = `feedback-message feedback-${type}`;
+    messageElement.className = 'feedback-message feedback-' + type;
     messageElement.textContent = message;
 
     document.body.appendChild(messageElement);
@@ -431,9 +432,11 @@ function showMessage(message, type) {
         messageElement.classList.remove('show');
     });
 
-    setTimeout(() => {
+    setTimeout(function() {
         messageElement.classList.remove('show');
-        setTimeout(() => messageElement.remove(), 300);
+        setTimeout(function() {
+            messageElement.remove();
+        }, 300);
     }, 5000);
 }
 
@@ -441,7 +444,6 @@ function formatPrice(price) {
     return '€' + parseFloat(price).toFixed(2).replace('.', ',');
 }
 
-// Funzione globale per aggiornare il contatore carrello
 function updateCartCounter(delta) {
     const counter = document.getElementById('cart-counter');
     if (counter) {

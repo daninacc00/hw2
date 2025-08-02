@@ -41,11 +41,15 @@ function setFormLoading(loading) {
     if (loading) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Accesso in corso...';
-        inputs.forEach(input => input.disabled = true);
+        inputs.forEach(function(input) {
+            input.disabled = true;
+        });
     } else {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Accedi';
-        inputs.forEach(input => input.disabled = false);
+        inputs.forEach(function(input) {
+            input.disabled = false;
+        });
     }
 }
 

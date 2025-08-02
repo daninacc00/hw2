@@ -11,19 +11,18 @@ prevButton.innerHTML = "&#10094;";
 nextButton.innerHTML = "&#10095;";
 
 function loadSliderImages() {
-    // Mantiene la stessa URL per compatibilità
     fetch('/slider-images', {
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
         }
     })
-        .then(response => {
+        .then(function(response) {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error('HTTP error! status: ' + response.status);
             }
             return response.json();
         })
-        .then(result => {
+        .then(function(result) {
             if (!result.success) {
                 throw new Error(result.message || result.error || 'Errore nel caricamento dei dati');
             }
@@ -41,11 +40,11 @@ function loadSliderImages() {
             createSlider();
             updateSlider();
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore nel caricamento delle immagini:', error);
             const errorDiv = document.createElement("div");
             errorDiv.classList.add("error");
-            errorDiv.textContent = `Errore nel caricamento: ${error.message}`;
+            errorDiv.textContent = 'Errore nel caricamento: ' + error.message;
             container.appendChild(errorDiv);
         });
 }
@@ -57,7 +56,7 @@ function createSlider() {
     const sliderTrack = document.createElement("div");
     sliderTrack.classList.add("slider-track");
 
-    sliderImages.forEach((imgData) => {
+    sliderImages.forEach(function(imgData) {
         const imageContainer = document.createElement("div");
         imageContainer.classList.add("image-container");
 
@@ -66,9 +65,8 @@ function createSlider() {
         img.alt = imgData.alt;
         img.classList.add("slider-image");
 
-        // Gestione errore immagine
         img.onerror = function() {
-            this.src = '/assets/images/placeholder.jpg'; // Fallback image
+            this.src = '/assets/images/placeholder.jpg';
         };
 
         const overlayContainer = document.createElement("div");
@@ -107,9 +105,8 @@ function updateSlider() {
 
     const imageWidth = 100 / itemsPerPage;
     const translateX = -(currentIndex * imageWidth);
-    sliderTrack.style.transform = `translateX(${translateX}%)`;
+    sliderTrack.style.transform = 'translateX(' + translateX + '%)';
 
-    // Aggiorna stato bottoni
     prevButton.classList.toggle("disabled", currentIndex === 0);
     nextButton.classList.toggle("disabled", currentIndex + step > sliderImages.length - itemsPerPage);
 }
@@ -128,9 +125,7 @@ function handleNext() {
     }
 }
 
-// Event listeners
 prevButton.addEventListener("click", handlePrev);
 nextButton.addEventListener("click", handleNext);
 
-// Inizializzazione
 loadSliderImages();

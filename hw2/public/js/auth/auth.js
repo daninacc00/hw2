@@ -10,7 +10,6 @@ function onResponse(response) {
     return response.json();
 }
 
-
 function showError(input, message) {
     input.classList.add('error');
 
@@ -41,7 +40,7 @@ function showGlobalError(message) {
         errorText.textContent = message;
 
         errorContainer.innerHTML = '';
-        errorContainer.append(errorText);
+        errorContainer.appendChild(errorText);
         errorContainer.classList.remove('hidden');
     }
 }

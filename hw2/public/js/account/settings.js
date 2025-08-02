@@ -1,20 +1,16 @@
 function populateSettings(userData) {
     settingsContent.classList.remove("hidden");
 
-    // Popola i campi del form con i dati utente
     document.getElementById('email').value = userData.email || '';
     document.getElementById('first_name').value = userData.first_name || '';
     document.getElementById('last_name').value = userData.last_name || '';
     
-    // Dati del profilo
     if (userData.profile) {
         document.getElementById('phone').value = userData.profile.phone || '';
         
-        // Gestione speciale per la data di nascita
         if (userData.profile.birth_date) {
             console.log('Data di nascita ricevuta:', userData.profile.birth_date);
             
-            // Estrai solo la parte della data (YYYY-MM-DD) dal formato ISO
             let dateValue = userData.profile.birth_date;
             if (dateValue.includes('T')) {
                 dateValue = dateValue.split('T')[0];
@@ -27,7 +23,6 @@ function populateSettings(userData) {
         }
     }
     
-    // Impostazioni
     if (userData.settings) {
         document.getElementById('newsletter_enabled').checked = userData.settings.newsletter_enabled || false;
         document.getElementById('notifications_enabled').checked = userData.settings.notifications_enabled || false;
@@ -187,7 +182,6 @@ function handleSettingsFormSubmit(e) {
         notifications_enabled: document.getElementById('notifications_enabled').checked
     };
     
-    // Debug: mostra i dati che stiamo inviando
     console.log('Dati inviati:', formData);
     console.log('Data di nascita:', formData.birth_date);
     
@@ -220,7 +214,6 @@ function handlePasswordFormSubmit(e) {
     updatePassword(passwordData);
 }
 
-// Elementi DOM
 const settingsLoadingElement = document.getElementById('settings-loading');
 const settingsErrorElement = document.getElementById('settings-error');
 const settingsSuccessElement = document.getElementById('settings-success');
@@ -229,7 +222,6 @@ const settingsForm = document.getElementById('settings-form');
 const passwordModal = document.getElementById('password-modal');
 const passwordForm = document.getElementById('password-form');
 
-// Event listeners
 if (settingsForm) {
     settingsForm.addEventListener('submit', handleSettingsFormSubmit);
 }
@@ -238,7 +230,6 @@ if (passwordForm) {
     passwordForm.addEventListener('submit', handlePasswordFormSubmit);
 }
 
-// Bottoni per cambio password
 const changePasswordBtn = document.getElementById('change-password-btn');
 if (changePasswordBtn) {
     changePasswordBtn.addEventListener('click', openPasswordModal);
@@ -261,20 +252,17 @@ if (passwordSave) {
     });
 }
 
-// Bottone annulla
 const cancelBtn = document.getElementById('cancel-btn');
 if (cancelBtn) {
     cancelBtn.addEventListener('click', function() {
-        loadUserSettings(); // Ricarica i dati originali
+        loadUserSettings();
     });
 }
 
-// Chiudi modal cliccando fuori
 window.addEventListener('click', function(e) {
     if (e.target === passwordModal) {
         closePasswordModal();
     }
 });
 
-// Carica le impostazioni all'avvio
 loadUserSettings();

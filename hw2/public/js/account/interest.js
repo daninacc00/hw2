@@ -8,8 +8,10 @@ let appState = {
 
 function fetchCategories(callback) {
     fetch('/api/interests/categories')
-        .then(result => result.json())
-        .then(data => {
+        .then(function(result) {
+            return result.json();
+        })
+        .then(function(data) {
             if (!data.success) {
                 console.error(data.message || 'Errore nel caricamento delle categorie');
                 callback([]);
@@ -17,7 +19,7 @@ function fetchCategories(callback) {
             }
             callback(data.data);
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error(error);
             callback([]);
         });
@@ -31,11 +33,13 @@ function fetchInterests(category, callback) {
 
     const url = category === 'all'
         ? '/api/interests'
-        : `/api/interests?category=${category}`;
+        : '/api/interests?category=' + category;
 
     fetch(url)
-        .then(result => result.json())
-        .then(data => {
+        .then(function(result) {
+            return result.json();
+        })
+        .then(function(data) {
             if (!data.success) {
                 console.error(data.message || 'Errore nel caricamento degli interessi');
                 callback([]);
@@ -43,7 +47,7 @@ function fetchInterests(category, callback) {
             }
             callback(data.data);
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error(error);
             callback([]);
         });
@@ -57,11 +61,13 @@ function fetchUserInterests(category, callback) {
 
     const url = category === 'all'
         ? '/api/interests/user'
-        : `/api/interests/user?category=${category}`;
+        : '/api/interests/user?category=' + category;
 
     fetch(url)
-        .then(result => result.json())
-        .then(data => {
+        .then(function(result) {
+            return result.json();
+        })
+        .then(function(data) {
             if (!data.success) {
                 console.error(data.message || 'Errore nel caricamento degli interessi utente');
                 callback([]);
@@ -69,7 +75,7 @@ function fetchUserInterests(category, callback) {
             }
             callback(data.data);
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error(error);
             callback([]);
         });
@@ -79,7 +85,6 @@ function toggleInterest(interestId, callback) {
     const formData = new FormData();
     formData.append('interestId', interestId);
     
-    // Aggiungi il token CSRF per Laravel
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
     if (csrfToken) {
         formData.append('_token', csrfToken.getAttribute('content'));
@@ -89,8 +94,10 @@ function toggleInterest(interestId, callback) {
         method: 'POST',
         body: formData
     })
-        .then(result => result.json())
-        .then(data => {
+        .then(function(result) {
+            return result.json();
+        })
+        .then(function(data) {
             if (!data.success) {
                 console.error(data.message || 'Errore nella selezione');
                 callback(null);
@@ -98,7 +105,7 @@ function toggleInterest(interestId, callback) {
             }
             callback(data);
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error(error);
             callback(null);
         });
@@ -109,23 +116,23 @@ function renderCategoryTabs(categories, activeCategory) {
 
     const allTab = document.createElement('a');
     allTab.href = '#';
-    allTab.className = `category-tab ${activeCategory === 'all' ? 'active' : ''}`;
+    allTab.className = 'category-tab ' + (activeCategory === 'all' ? 'active' : '');
     allTab.textContent = 'Tutto';
     allTab.dataset.category = 'all';
 
     tabsContainer.innerHTML = '';
     tabsContainer.appendChild(allTab);
 
-    categories.forEach(category => {
+    categories.forEach(function(category) {
         const tab = document.createElement('a');
         tab.href = '#';
-        tab.className = `category-tab ${activeCategory === category.value ? 'active' : ''}`;
+        tab.className = 'category-tab ' + (activeCategory === category.value ? 'active' : '');
         tab.textContent = category.name;
         tab.dataset.category = category.value;
         tabsContainer.appendChild(tab);
     });
 
-    tabsContainer.querySelectorAll('.category-tab').forEach(tab => {
+    tabsContainer.querySelectorAll('.category-tab').forEach(function(tab) {
         tab.addEventListener('click', function(e) {
             e.preventDefault();
             const category = tab.dataset.category;
@@ -163,11 +170,11 @@ function renderInterestsGrid(userInterests) {
 
     userInterests.forEach(function(interest) {
         const card = document.createElement('div');
-        card.className = `interest-card ${interest.user_has_interest ? 'selected' : ''}`;
+        card.className = 'interest-card ' + (interest.user_has_interest ? 'selected' : '');
         card.dataset.interestId = interest.id;
         
-        const imageUrl = interest.image_url || `/assets/images/interests/${interest.id}.jpg`;
-        card.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('${imageUrl}')`;
+        const imageUrl = interest.image_url || '/assets/images/interests/' + interest.id + '.jpg';
+        card.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url(\'' + imageUrl + '\')';
         
         const categoryLabel = document.createElement('div');
         categoryLabel.className = 'category-label';
@@ -192,7 +199,7 @@ function renderModalCategoryTabs(categories, userInterests) {
     tabsContainer.innerHTML = '';
 
     const counts = { all: userInterests.length };
-    userInterests.forEach(interest => {
+    userInterests.forEach(function(interest) {
         const catId = interest.category_id.toString();
         counts[catId] = (counts[catId] || 0) + 1;
     });
@@ -200,18 +207,18 @@ function renderModalCategoryTabs(categories, userInterests) {
     const allTab = document.createElement('button');
     allTab.className = 'modal-category-tab active';
     allTab.dataset.category = 'all';
-    allTab.textContent = `Tutto (${counts.all || 0})`;
+    allTab.textContent = 'Tutto (' + (counts.all || 0) + ')';
     tabsContainer.appendChild(allTab);
 
-    categories.forEach(category => {
+    categories.forEach(function(category) {
         const tab = document.createElement('button');
         tab.className = 'modal-category-tab';
         tab.dataset.category = category.id.toString();
-        tab.textContent = `${category.name} (${counts[category.id] || 0})`;
+        tab.textContent = category.name + ' (' + (counts[category.id] || 0) + ')';
         tabsContainer.appendChild(tab);
     });
 
-    tabsContainer.querySelectorAll('.modal-category-tab').forEach(tab => {
+    tabsContainer.querySelectorAll('.modal-category-tab').forEach(function(tab) {
         tab.addEventListener('click', function() {
             switchModalCategory(tab.dataset.category);
         });
@@ -222,7 +229,7 @@ function renderModalInterests(interests) {
     const container = document.getElementById('modal-interests-list');
     container.innerHTML = '';
 
-    interests.forEach(interest => {
+    interests.forEach(function(interest) {
         const item = document.createElement('div');
         item.className = 'modal-interest-item';
         item.dataset.interestId = interest.id;
@@ -232,7 +239,7 @@ function renderModalInterests(interests) {
         imageDiv.className = 'modal-interest-image';
         
         const img = document.createElement('img');
-        const imageUrl = interest.image_url || `/assets/images/interests/${interest.id}.jpg`;
+        const imageUrl = interest.image_url || '/assets/images/interests/' + interest.id + '.jpg';
         img.src = imageUrl;
         img.alt = interest.name;
         img.onerror = function() {
@@ -249,9 +256,9 @@ function renderModalInterests(interests) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         
-        const userHasInterest = appState.userInterests.some(userInterest => 
-            userInterest.id.toString() === interest.id.toString()
-        );
+        const userHasInterest = appState.userInterests.some(function(userInterest) {
+            return userInterest.id.toString() === interest.id.toString();
+        });
         checkbox.checked = userHasInterest;
         
         imageDiv.appendChild(img);
@@ -274,7 +281,7 @@ function switchCategory(category) {
     appState.activeCategory = category;
     setLoading(true);
 
-    document.querySelectorAll('.category-tab').forEach(tab => {
+    document.querySelectorAll('.category-tab').forEach(function(tab) {
         tab.classList.toggle('active', tab.dataset.category === category);
     });
 
@@ -298,15 +305,21 @@ function handleInterestToggle(interestId, checkboxElement) {
 
         checkboxElement.checked = result.action === 'added';
 
-        const interestIndex = appState.interests.findIndex(i => i.id.toString() === interestId.toString());
+        const interestIndex = appState.interests.findIndex(function(i) {
+            return i.id.toString() === interestId.toString();
+        });
         if (interestIndex !== -1) {
             appState.interests[interestIndex].user_has_interest = result.action === 'added';
         }
 
         if (result.action === 'added') {
-            const existsInUserInterests = appState.userInterests.some(ui => ui.id.toString() === interestId.toString());
+            const existsInUserInterests = appState.userInterests.some(function(ui) {
+                return ui.id.toString() === interestId.toString();
+            });
             if (!existsInUserInterests) {
-                const interestToAdd = appState.interests.find(i => i.id.toString() === interestId.toString());
+                const interestToAdd = appState.interests.find(function(i) {
+                    return i.id.toString() === interestId.toString();
+                });
                 if (interestToAdd) {
                     const userInterest = Object.assign({}, interestToAdd);
                     userInterest.user_has_interest = true;
@@ -314,7 +327,9 @@ function handleInterestToggle(interestId, checkboxElement) {
                 }
             }
         } else {
-            appState.userInterests = appState.userInterests.filter(ui => ui.id.toString() !== interestId.toString());
+            appState.userInterests = appState.userInterests.filter(function(ui) {
+                return ui.id.toString() !== interestId.toString();
+            });
         }
 
         fetchUserInterests(appState.activeCategory, function(userInterests) {
@@ -327,11 +342,11 @@ function handleInterestToggle(interestId, checkboxElement) {
 }
 
 function switchModalCategory(categoryId) {
-    document.querySelectorAll('.modal-category-tab').forEach(tab => {
+    document.querySelectorAll('.modal-category-tab').forEach(function(tab) {
         tab.classList.toggle('active', tab.dataset.category === categoryId);
     });
 
-    document.querySelectorAll('.modal-interest-item').forEach(item => {
+    document.querySelectorAll('.modal-interest-item').forEach(function(item) {
         const shouldShow = categoryId === 'all' || item.dataset.category === categoryId;
         item.style.display = shouldShow ? 'flex' : 'none';
     });
@@ -365,7 +380,9 @@ function init() {
         const pairs = query.split('&');
         
         for (const pair of pairs) {
-            const [key, value] = pair.split('=');
+            const keyValue = pair.split('=');
+            const key = keyValue[0];
+            const value = keyValue[1];
             if (key === name && value) {
                 return decodeURIComponent(value);
             }

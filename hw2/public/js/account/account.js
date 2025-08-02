@@ -27,7 +27,7 @@ function switchTab(tabName) {
 }
 
 function showTab(tabName) {
-    const tabContent = document.getElementById(`tab-${tabName}`);
+    const tabContent = document.getElementById('tab-' + tabName);
 
     if (tabContent) {
         tabContent.classList.add('active');
@@ -39,7 +39,7 @@ function showTab(tabName) {
 }
 
 function hideTab(tabName) {
-    const tabContent = document.getElementById(`tab-${tabName}`);
+    const tabContent = document.getElementById('tab-' + tabName);
     if (tabContent) {
         tabContent.classList.remove('active');
     }
@@ -50,7 +50,7 @@ function updateActiveLink(tabName) {
         link.classList.remove('active');
     });
 
-    const activeLink = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeLink = document.querySelector('[data-tab="' + tabName + '"]');
     if (activeLink) {
         activeLink.classList.add('active');
     }
@@ -60,7 +60,9 @@ const tabLinks = document.querySelectorAll('.tab-link');
 const tabContents = document.querySelectorAll('.tab-content');
 
 tabLinks.forEach(link => {
-    link.addEventListener('click', (e) => handleClickTab(e, link));
+    link.addEventListener('click', function(e) {
+        handleClickTab(e, link);
+    });
 });
 
 showTab(currentTab);

@@ -34,21 +34,21 @@ function loadProduct() {
         return;
     }
 
-    fetch(`/api/product?id=${productId}`, {
+    fetch('/api/product?id=' + productId, {
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
         }
     })
-        .then(response => {
+        .then(function(response) {
             console.log('Response status:', response.status);
             console.log('Response URL:', response.url);
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
             }
             return response.json();
         })
-        .then(result => {
+        .then(function(result) {
             console.log('API Result:', result);
 
             if (!result.success || !result.data) {
@@ -60,7 +60,7 @@ function loadProduct() {
             updateFavoriteButton();
             hideLoading();
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore nel caricamento del prodotto:', error);
             showError(error.message);
             hideLoading();
@@ -102,7 +102,7 @@ function renderProduct(product) {
 
     const categoryDiv = document.createElement('div');
     categoryDiv.className = 'product-category';
-    const categoryText = `${product.section_name} - ${product.category_name}`;
+    const categoryText = product.section_name + ' - ' + product.category_name;
     categoryDiv.textContent = categoryText;
 
     productInfo.appendChild(title);
@@ -152,10 +152,12 @@ function renderThumbnails(images) {
 
     if (!images || images.length === 0) return thumbnails;
 
-    images.forEach((image, index) => {
+    images.forEach(function(image, index) {
         const thumbDiv = document.createElement('div');
         thumbDiv.className = 'thumbnail' + (index === 0 ? ' active' : '');
-        thumbDiv.addEventListener("click", () => changeMainImage(image.image_url, thumbDiv));
+        thumbDiv.addEventListener("click", function() {
+            changeMainImage(image.image_url, thumbDiv);
+        });
 
         const img = document.createElement('img');
         img.src = image.image_url;
@@ -220,7 +222,7 @@ function renderRating(product) {
 
     const ratingText = document.createElement('span');
     ratingText.className = 'rating-text';
-    ratingText.textContent = `${product.rating} (${product.rating_count || 0} recensioni)`;
+    ratingText.textContent = product.rating + ' (' + (product.rating_count || 0) + ' recensioni)';
 
     container.appendChild(starsDiv);
     container.appendChild(ratingText);
@@ -244,7 +246,7 @@ function renderPrice(product) {
 
         const discount = document.createElement('span');
         discount.className = 'discount';
-        discount.textContent = `-${product.discount_percentage || 0}%`;
+        discount.textContent = '-' + (product.discount_percentage || 0) + '%';
 
         div.appendChild(original);
         div.appendChild(discount);
@@ -266,13 +268,15 @@ function renderColors(colors) {
     const options = document.createElement('div');
     options.className = 'color-options';
 
-    colors.forEach((color, index) => {
+    colors.forEach(function(color, index) {
         const div = document.createElement('div');
         div.className = 'color-option' + (index === 0 ? ' selected' : '');
         div.style.backgroundColor = color.hex_code;
         div.dataset.colorId = color.id;
         div.title = color.name;
-        div.addEventListener("click", () => selectColor(div));
+        div.addEventListener("click", function() {
+            selectColor(div);
+        });
         options.appendChild(div);
     });
 
@@ -308,7 +312,7 @@ function renderSizes(sizes) {
     const options = document.createElement('div');
     options.className = 'size-options';
 
-    sizes.forEach(size => {
+    sizes.forEach(function(size) {
         const div = document.createElement('div');
         div.className = 'size-option';
         if (size.stock_quantity == 0) {
@@ -317,7 +321,9 @@ function renderSizes(sizes) {
         div.dataset.sizeId = size.id;
         div.dataset.stock = size.stock_quantity;
         div.textContent = 'EU ' + size.value;
-        div.addEventListener('click', () => selectSize(div));
+        div.addEventListener('click', function() {
+            selectSize(div);
+        });
         options.appendChild(div);
     });
 
@@ -334,7 +340,7 @@ function renderDescription(product) {
     div.className = 'product-description';
 
     const p = document.createElement('p');
-    p.innerHTML = product.description;
+    p.textContent = product.description;
 
     div.appendChild(p);
 
@@ -381,7 +387,7 @@ function renderAdditionalInfo(product) {
 function changeMainImage(imageUrl, thumbnailElement) {
     document.getElementById('main-product-image').src = imageUrl;
 
-    document.querySelectorAll('.thumbnail').forEach(thumb => {
+    document.querySelectorAll('.thumbnail').forEach(function(thumb) {
         thumb.classList.remove('active');
     });
 
@@ -389,7 +395,7 @@ function changeMainImage(imageUrl, thumbnailElement) {
 }
 
 function selectColor(colorElement) {
-    document.querySelectorAll('.color-option').forEach(color => {
+    document.querySelectorAll('.color-option').forEach(function(color) {
         color.classList.remove('selected');
     });
 
@@ -404,7 +410,7 @@ function selectSize(sizeElement) {
         return;
     }
 
-    document.querySelectorAll('.size-option').forEach(size => {
+    document.querySelectorAll('.size-option').forEach(function(size) {
         size.classList.remove('selected');
     });
 
@@ -427,7 +433,6 @@ function checkAddToCartButton() {
     }
 }
 
-// FUNZIONE PRINCIPALE CORRETTA
 function addToCart() {
     if (!selectedSizeId) {
         showErrorMessage('Seleziona una taglia prima di aggiungere al carrello');
@@ -446,31 +451,28 @@ function addToCart() {
     formData.append('sizeId', selectedSizeId);
     formData.append('quantity', 1);
 
-    // ENDPOINT CORRETTO basato sulla struttura del progetto
     fetch('/api/cart/add', {
         method: 'POST',
         body: formData,
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
         }
     })
-        .then(response => {
+        .then(function(response) {
             console.log('Response status:', response.status);
             
-            // Gestione risposta non-ok
             if (!response.ok) {
-                // Se è un 401/403, probabilmente non autenticato
                 if (response.status === 401 || response.status === 403) {
                     window.location.href = '/login';
                     return;
                 }
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
             }
             
             return response.json();
         })
-        .then(result => {
-            if (!result) return; // Caso redirect
+        .then(function(result) {
+            if (!result) return;
             
             console.log('Add to cart result:', result);
             
@@ -485,11 +487,11 @@ function addToCart() {
                 }
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore nella richiesta:', error);
             showErrorMessage('Errore di connessione. Riprova più tardi.');
         })
-        .finally(function () {
+        .finally(function() {
             addToCartBtn.disabled = false;
             addToCartBtn.textContent = originalText;
             checkAddToCartButton();
@@ -528,20 +530,20 @@ function addFavorite() {
         method: 'POST',
         body: formData,
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
         }
     })
-        .then(response => {
+        .then(function(response) {
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
                     window.location.href = '/login';
                     return;
                 }
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
             }
             return response.json();
         })
-        .then(result => {
+        .then(function(result) {
             if (!result) return;
             
             if (result.success) {
@@ -557,11 +559,11 @@ function addFavorite() {
                 }
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore nella richiesta:', error);
             showErrorMessage('Errore di connessione. Riprova più tardi.');
         })
-        .finally(function () {
+        .finally(function() {
             favBtn.disabled = false;
             if (!isFavorite) {
                 favBtn.textContent = originalText;
@@ -583,20 +585,20 @@ function removeFavorite() {
         method: 'POST',
         body: formData,
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
         }
     })
-        .then(response => {
+        .then(function(response) {
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
                     window.location.href = '/login';
                     return;
                 }
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
             }
             return response.json();
         })
-        .then(result => {
+        .then(function(result) {
             if (!result) return;
             
             if (result.success) {
@@ -612,11 +614,11 @@ function removeFavorite() {
                 }
             }
         })
-        .catch(error => {
+        .catch(function(error) {
             console.error('Errore nella richiesta:', error);
             showErrorMessage('Errore di connessione. Riprova più tardi.');
         })
-        .finally(function () {
+        .finally(function() {
             favBtn.disabled = false;
             if (isFavorite) {
                 favBtn.textContent = originalText;
@@ -689,7 +691,6 @@ function formatPrice(price) {
     return '€' + number.toFixed(2).replace('.', ',');
 }
 
-// Funzioni globali per aggiornare i contatori
 function updateFavoritesCounter(delta) {
     const counter = document.getElementById('favorites-counter');
     if (counter) {

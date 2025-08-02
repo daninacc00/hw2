@@ -1,4 +1,3 @@
-
 const detailButtons = document.querySelectorAll('.view-details-btn');
 
 for (let i = 0; i < detailButtons.length; i++) {
@@ -14,17 +13,14 @@ function toggleOrderItems(orderId) {
     const button = document.querySelector('.view-details-btn[data-order-id="' + orderId + '"]');
 
     if (itemsDiv.style.display === 'none') {
-        // Mostra dettagli
         itemsDiv.style.display = 'block';
         button.textContent = 'Nascondi Dettagli';
 
-        // Carica i prodotti se non sono già stati caricati
         const container = itemsDiv.querySelector('.items-container');
         if (!container.hasAttribute('data-loaded')) {
             loadOrderItems(orderId);
         }
     } else {
-        // Nascondi dettagli
         itemsDiv.style.display = 'none';
         button.textContent = 'Vedi Dettagli';
     }
@@ -33,10 +29,8 @@ function toggleOrderItems(orderId) {
 function loadOrderItems(orderId) {
     const container = document.querySelector('.items-container[data-order-id="' + orderId + '"]');
 
-    // Mostra loading
     container.innerHTML = '<div class="loading">Caricamento prodotti...</div>';
 
-    // Chiamata fetch per recuperare i prodotti (seguendo le slide)
     fetch('/api/orders/items?order_id=' + orderId)
         .then(function (response) {
             if (!response.ok) {
@@ -66,46 +60,61 @@ function displayOrderItems(container, items) {
         return;
     }
 
-    let html = '';
+    container.innerHTML = '';
 
     for (let i = 0; i < items.length; i++) {
         const item = items[i];
 
-        html += '<div class="item-detail">';
+        const itemDetail = document.createElement('div');
+        itemDetail.className = 'item-detail';
 
-        // Immagine prodotto
         if (item.image_url) {
-            html += '<img src="' + item.image_url + '" alt="' + item.product_name + '">';
+            const img = document.createElement('img');
+            img.src = item.image_url;
+            img.alt = item.product_name;
+            itemDetail.appendChild(img);
         } else {
-            html += '<div class="no-image">Nessuna immagine</div>';
+            const noImage = document.createElement('div');
+            noImage.className = 'no-image';
+            noImage.textContent = 'Nessuna immagine';
+            itemDetail.appendChild(noImage);
         }
 
-        // Info prodotto
-        html += '<div class="item-info">';
-        html += '<h5>' + item.product_name + '</h5>';
+        const itemInfo = document.createElement('div');
+        itemInfo.className = 'item-info';
+
+        const productName = document.createElement('h5');
+        productName.textContent = item.product_name;
+        itemInfo.appendChild(productName);
 
         if (item.color_name) {
-            html += '<p>Colore: ' + item.color_name + '</p>';
+            const colorInfo = document.createElement('p');
+            colorInfo.textContent = 'Colore: ' + item.color_name;
+            itemInfo.appendChild(colorInfo);
         }
 
         if (item.size_name) {
-            html += '<p>Taglia: ' + item.size_name + '</p>';
+            const sizeInfo = document.createElement('p');
+            sizeInfo.textContent = 'Taglia: ' + item.size_name;
+            itemInfo.appendChild(sizeInfo);
         }
 
-        html += '<p>Quantità: ' + item.quantity + '</p>';
-        html += '</div>';
+        const quantityInfo = document.createElement('p');
+        quantityInfo.textContent = 'Quantità: ' + item.quantity;
+        itemInfo.appendChild(quantityInfo);
 
-        // Prezzo
+        itemDetail.appendChild(itemInfo);
+
         const totalPrice = item.price * item.quantity;
-        html += '<div class="item-price">€' + totalPrice.toFixed(2) + '</div>';
+        const itemPrice = document.createElement('div');
+        itemPrice.className = 'item-price';
+        itemPrice.textContent = '€' + totalPrice.toFixed(2);
+        itemDetail.appendChild(itemPrice);
 
-        html += '</div>';
+        container.appendChild(itemDetail);
     }
-
-    container.innerHTML = html;
 }
 
-// Funzione di utilità per formattare i prezzi
 function formatPrice(price) {
     return parseFloat(price).toFixed(2);
 }
