@@ -16,6 +16,6 @@ class Size extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'product_sizes')->withPivot('stock_quantity');
+        return $this->belongsToMany(Product::class, 'product_sizes');
     }
 }

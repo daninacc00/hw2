@@ -1,0 +1,220 @@
+/* checkout.css */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.checkout-container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.order-summary {
+    flex: 1;
+    min-width: 300px;
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.order-summary h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.order-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.order-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.item-details h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+}
+
+.item-details p {
+    margin: 2px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.item-details .price {
+    font-weight: bold;
+    color: #000;
+}
+
+.total {
+    text-align: right;
+    font-size: 18px;
+    padding-top: 15px;
+    border-top: 2px solid #333;
+}
+
+.checkout-form {
+    flex: 1;
+    min-width: 400px;
+}
+
+.checkout-form h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-group textarea {
+    height: 80px;
+    resize: vertical;
+}
+
+#card-container {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+}
+
+/* Stili per form carta mock in ambiente locale */
+.card-form-mock {
+    padding: 10px 0;
+}
+
+.card-form-mock h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.card-form-mock .form-group {
+    margin-bottom: 15px;
+}
+
+.card-form-mock .form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.card-form-mock .form-row .form-group {
+    flex: 1;
+}
+
+.card-form-mock label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+}
+
+.card-form-mock input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.test-note {
+    margin: 15px 0 0 0;
+    padding: 10px;
+    background: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    color: #0066cc;
+    font-size: 13px;
+    text-align: center;
+}
+
+#payment-status {
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 4px;
+    display: none;
+}
+
+#payment-status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+#payment-status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+#pay-button {
+    width: 100%;
+    padding: 15px;
+    background: #000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+#pay-button:hover {
+    background: #333;
+}
+
+#pay-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .checkout-container {
+        flex-direction: column;
+    }
+    
+    .order-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .order-item img {
+        align-self: center;
+    }
+}

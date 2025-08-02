@@ -35,8 +35,7 @@ class AuthController extends Controller
                 return response()->json(['success' => false, 'message' => 'Username/Email e password sono obbligatori']);
             }
 
-            $user = new User();
-            $result = $user->authenticateUser($username, $password);
+            $result = $this->authenticateUser($username, $password);
 
             if ($result['success']) {
                 session(['user_id' => $result['utente']['id']]);
@@ -76,8 +75,7 @@ class AuthController extends Controller
                 return response()->json(['success' => false, 'message' => 'Password non valida']);
             }
 
-            $user = new User();
-            $result = $user->register($username, $email, $password, $nome, $cognome);
+            $result = $this->registerUser($username, $email, $password, $nome, $cognome);
 
             return response()->json($result);
         }
@@ -114,5 +112,70 @@ class AuthController extends Controller
         }
 
         return true;
+    }
+
+    private function isUserExist($username, $email)
+    {
+        $count = User::where('username', $username)
+            ->orWhere('email', $email)
+            ->count();
+
+        return $count > 0;
+    }
+
+    private function registerUser($username, $email, $password, $nome, $cognome)
+    {
+        if ($this->isUserExist($username, $email)) {
+            return ['success' => false, 'message' => 'Username o email già esistenti'];
+        }
+
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+        $user = new User();
+        $user->username = $username;
+        $user->email = $email;
+        $user->password_hash = $passwordHash;
+        $user->first_name = $nome;
+        $user->last_name = $cognome;
+
+        if ($user->save()) {
+            $user->profile()->create([]);
+            $user->settings()->create([]);
+
+            return ['success' => true, 'message' => 'Registrazione completata con successo'];
+        } else {
+            return ['success' => false, 'message' => 'Errore durante la registrazione'];
+        }
+    }
+
+    private function updateLastLogin($idUtente)
+    {
+        User::where('id', $idUtente)
+            ->update(['last_login' => now()]);
+    }
+
+    private function authenticateUser($username, $password)
+    {
+        $user = User::where(function ($query) use ($username) {
+            $query->where('username', $username)
+                ->orWhere('email', $username);
+        })
+            ->where('account_status', 0)
+            ->first();
+
+        if ($user) {
+            if (password_verify($password, $user->password_hash)) {
+                $this->updateLastLogin($user->id);
+
+                $userData = $user->toArray();
+                unset($userData['password_hash']);
+
+                return ['success' => true, 'utente' => $userData];
+            } else {
+                return ['success' => false, 'message' => 'Credenziali non valide'];
+            }
+        } else {
+            return ['success' => false, 'message' => 'Credenziali non valide'];
+        }
     }
 }

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class InterestCategory extends Model
 {
+    protected $table = 'interest_categories';
+
     protected $fillable = [
         'name',
         'value'

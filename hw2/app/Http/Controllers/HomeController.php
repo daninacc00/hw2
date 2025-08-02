@@ -22,9 +22,9 @@ class HomeController extends Controller
     public function getSliderImages(Request $request)
     {
         try {
-            // Recupera le immagini dello slider attive e ordinate
-            $sliderImages = SliderImage::active()
-                ->ordered()
+            // Recupera le immagini dello slider attive e ordinate usando query builder
+            $sliderImages = SliderImage::where('is_active', true)
+                ->orderBy('order_index', 'asc')
                 ->get();
 
             // Se non ci sono immagini
@@ -37,9 +37,15 @@ class HomeController extends Controller
                 ]);
             }
 
-            // Formatta i dati per l'API JavaScript (mantiene la compatibilità)
+            // Formatta i dati per l'API JavaScript nel controller
             $formattedImages = $sliderImages->map(function ($image) {
-                return $image->toApiArray();
+                return [
+                    'id' => $image->id,
+                    'src' => $image->src,
+                    'alt' => $image->alt_text,
+                    'name' => $image->name,
+                    'isFreeShipping' => $image->is_free_shipping
+                ];
             });
 
             return response()->json([

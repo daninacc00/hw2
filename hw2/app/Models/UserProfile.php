@@ -15,11 +15,6 @@ class UserProfile extends Model
         'interests'
     ];
 
-    protected $casts = [
-        'interests' => 'array',
-        'birth_date' => 'date'
-    ];
-
     public function user()
     {
         return $this->belongsTo(User::class);

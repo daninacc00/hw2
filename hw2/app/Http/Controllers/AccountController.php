@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AccountController extends Controller
 {
-    public function index()
+    public function profile()
     {
         return view('account.profile');
     }

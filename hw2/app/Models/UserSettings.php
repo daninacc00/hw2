@@ -14,11 +14,6 @@ class UserSettings extends Model
         'notifications_enabled'
     ];
 
-    protected $casts = [
-        'newsletter_enabled' => 'boolean',
-        'notifications_enabled' => 'boolean'
-    ];
-
     public function user()
     {
         return $this->belongsTo(User::class);

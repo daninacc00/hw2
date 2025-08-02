@@ -185,6 +185,8 @@ class ShopController extends Controller
 
         // Formattazione risultati
         $formattedProducts = $products->map(function ($product) {
+            $primaryImage = $product->images->where('is_primary', true)->first();
+
             return [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -197,7 +199,7 @@ class ShopController extends Controller
                 'is_on_sale' => $product->is_on_sale,
                 'rating' => $product->rating,
                 'rating_count' => $product->rating_count,
-                'primary_image' => $product->primaryImage ? $product->primaryImage->image_url : null,
+                'primary_image' => $primaryImage ? $primaryImage->image_url : null,
                 'category_name' => $product->category ? $product->category->display_name : null,
                 'section_name' => $product->section ? $product->section->display_name : null,
                 'sport_name' => $product->sport ? $product->sport->display_name : null,

@@ -16,10 +16,6 @@ class ProductImage extends Model
         'sort_order'
     ];
 
-    protected $casts = [
-        'is_primary' => 'boolean'
-    ];
-
     public function product()
     {
         return $this->belongsTo(Product::class);
