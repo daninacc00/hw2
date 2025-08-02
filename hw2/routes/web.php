@@ -12,6 +12,8 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
 
 // Route pubbliche per autenticazione
 Route::get('/', [HomeController::class, 'index']);
@@ -72,4 +74,11 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     Route::post('/api/cart/update', [CartController::class, 'updateQuantity']);
     Route::post('/api/cart/remove-item', [CartController::class, 'removeCartItem']);
     Route::post('/api/cart/remove', [CartController::class, 'removeFromCart']);
+
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/api/checkout/process', [CheckoutController::class, 'processPayment']);
+
+    // Orders routes  
+    Route::get('/account/orders', [OrderController::class, 'index'])->name('account.orders');
+    Route::get('/api/orders/items', [OrderController::class, 'getOrderItems']);
 });

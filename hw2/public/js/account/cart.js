@@ -1,3 +1,5 @@
+// cart.js - JavaScript per il carrello con collegamento al checkout
+
 loadCartItems();
 
 function loadCartItems() {
@@ -202,9 +204,20 @@ function createCartSummary(summary) {
     totalRow.appendChild(totalLabel);
     totalRow.appendChild(totalValue);
 
+    // Bottone checkout con event listener (seguendo le slide)
     const checkoutBtn = document.createElement('button');
     checkoutBtn.className = 'checkout-btn';
     checkoutBtn.textContent = 'Procedi al checkout';
+    
+    // Aggiungi event listener per reindirizzare al checkout
+    checkoutBtn.addEventListener('click', function() {
+        // Verifica che ci siano prodotti nel carrello
+        if (summary.items_count > 0) {
+            window.location.href = '/checkout';
+        } else {
+            showErrorMessage('Il carrello è vuoto');
+        }
+    });
 
     summaryDiv.appendChild(subtotalRow);
     summaryDiv.appendChild(shippingRow);
@@ -438,4 +451,3 @@ function updateCartCounter(delta) {
         counter.classList.toggle('hidden', newValue === 0);
     }
 }
-    
