@@ -59,7 +59,7 @@ function onSettingsJsonResponse(data) {
     if (data.success) {
         populateSettings(data.data);
     } else {
-        onSettingsError(data.error);
+        onSettingsError(data.error || data.message || 'Errore nel caricamento delle impostazioni');
     }
 }
 
@@ -119,9 +119,11 @@ function updateUserSettings(formData) {
     .then(function(data) {
         if (data.success) {
             showSettingsSuccess('Impostazioni aggiornate con successo!');
-            populateSettings(data.data);
+            if (data.data) {
+                populateSettings(data.data);
+            }
         } else {
-            onSettingsError(data.error);
+            onSettingsError(data.error || data.message || 'Errore sconosciuto durante l\'aggiornamento');
         }
     })
     .catch(onSettingsError)
@@ -147,7 +149,7 @@ function updatePassword(passwordData) {
             showSettingsSuccess('Password aggiornata con successo!');
             closePasswordModal();
         } else {
-            onSettingsError(data.error);
+            onSettingsError(data.error || data.message || 'Errore sconosciuto durante l\'aggiornamento della password');
         }
     })
     .catch(onSettingsError)
@@ -248,7 +250,27 @@ if (passwordCancel) {
 const passwordSave = document.getElementById('password-save');
 if (passwordSave) {
     passwordSave.addEventListener('click', function() {
-        passwordForm.dispatchEvent(new Event('submit'));
+        const currentPassword = document.getElementById('current_password').value;
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        
+        if (newPassword !== confirmPassword) {
+            onSettingsError('Le password non coincidono');
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            onSettingsError('La password deve contenere almeno 6 caratteri');
+            return;
+        }
+        
+        const passwordData = {
+            current_password: currentPassword,
+            new_password: newPassword,
+            confirm_password: confirmPassword
+        };
+        
+        updatePassword(passwordData);
     });
 }
 
