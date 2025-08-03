@@ -15,9 +15,6 @@
 @section('account-content')
 <div id="tab-profile" class="tab-content active">
     <section class="profile-section">
-        <div id="loading" class="loading-spinner">
-            <p>Caricamento profilo...</p>
-        </div>
         <div id="error-message" class="error-message hidden">
             <p>Errore nel caricamento del profilo. Riprova più tardi.</p>
         </div>
@@ -42,8 +39,6 @@
         <div class="interests-description">
             Aggiungi i tuoi interessi per scoprire una collezione di articoli basati sulle tue preferenze.
         </div>
-
-        <div class="loading" id="loading">Caricamento...</div>
 
         <div class="interests-grid" id="interests-grid">
         </div>

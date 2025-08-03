@@ -10,14 +10,14 @@ class AuthMiddleware
     public function handle(Request $request, Closure $next)
     {
         if (!session('user_id')) {
-            $path = $request->getPathInfo();
+            // $path = $request->getPathInfo();
             
-            if (substr($path, 0, 5) === '/api/') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Devi essere loggato per accedere a questa funzione'
-                ], 401);
-            }
+            // if (substr($path, 0, 5) === '/api/') {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Devi essere loggato per accedere a questa funzione'
+            //     ], 401);
+            // }
             
             return redirect('/login');
         }

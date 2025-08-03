@@ -1,14 +1,32 @@
 let currentUser = null;
 
+function getCsrfToken() {
+    const metaElement = document.querySelector('meta[name="csrf-token"]');
+    return metaElement ? metaElement.getAttribute('content') : '';
+}
+
+function onResponse(response) {
+    if (!response.ok) {
+        console.error('Error ' + response.status + ': ' + response.statusText);
+    }
+
+    if (response.redirected) {
+        window.location.href = response.url;
+        return null;
+    }
+
+    return response.json();
+}
+
 loadUserData();
 
 function loadUserData() {
     fetch('/api/user/profile', {
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
+            'X-CSRF-TOKEN': getCsrfToken()
         }
     })
-        .then(function(response) {
+        .then(function (response) {
             if (response.ok) {
                 return response.json();
             } else {
@@ -17,7 +35,7 @@ function loadUserData() {
                 return null;
             }
         })
-        .then(function(data) {
+        .then(function (data) {
             if (data && data.success && data.user) {
                 currentUser = data.user;
                 updateUIForLoggedUser();
@@ -26,7 +44,7 @@ function loadUserData() {
                 updateUIForGuestUser();
             }
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.error('Errore nel caricamento dati utente:', error);
             currentUser = null;
             updateUIForGuestUser();
@@ -72,7 +90,7 @@ function updateDesktopUserMenu() {
             { action: 'logout', text: 'Esci' }
         ];
 
-        actions.forEach(function(actionData) {
+        actions.forEach(function (actionData) {
             const actionItem = document.createElement('li');
             actionItem.className = 'action-item';
             actionItem.dataset.action = actionData.action;
@@ -92,7 +110,7 @@ function updateDesktopUserMenu() {
 
         userMenuItem.innerHTML = '';
         userMenuItem.appendChild(tooltipContainer);
-        
+
         setupActionListeners();
     }
 }
@@ -118,7 +136,7 @@ function updateMobileUserMenu() {
     const mobileMenuNav = document.querySelector('.mobile-menu-nav');
     if (mobileMenuNav && currentUser) {
         const membershipDiv = mobileMenuNav.querySelector('.mobile-menu-membership');
-        
+
         if (membershipDiv) {
             const mobileUserProfile = document.createElement('div');
             mobileUserProfile.className = 'mobile-user-profile';
@@ -167,11 +185,11 @@ function updateMobileUserMenu() {
                 { action: 'logout', text: 'Esci' }
             ];
 
-            mobileActions.forEach(function(actionData) {
+            mobileActions.forEach(function (actionData) {
                 const li = document.createElement('li');
                 const a = document.createElement('a');
                 a.href = '#';
-                a.onclick = function() { handleAction(actionData.action); };
+                a.onclick = function () { handleAction(actionData.action); };
                 a.textContent = actionData.text;
                 li.appendChild(a);
                 mobileUserActions.appendChild(li);
@@ -191,11 +209,11 @@ function updateMobileGuestMenu() {
     const mobileMenuNav = document.querySelector('.mobile-menu-nav');
     if (mobileMenuNav) {
         const membershipDiv = mobileMenuNav.querySelector('.mobile-menu-membership');
-        
+
         if (membershipDiv) {
             const description = document.createElement('p');
             description.textContent = 'Diventa Member Nike per accedere a prodotti fantastici, tanta ispirazione e storie sullo sport. ';
-            
+
             const discoverMore = document.createElement('a');
             discoverMore.href = '#';
             discoverMore.className = 'discover-more';
@@ -207,12 +225,12 @@ function updateMobileGuestMenu() {
 
             const primaryBtn = document.createElement('button');
             primaryBtn.className = 'mobile-menu-btn primary';
-            primaryBtn.onclick = function() { window.location.href = '/register'; };
+            primaryBtn.onclick = function () { window.location.href = '/register'; };
             primaryBtn.textContent = 'Unisciti a noi';
 
             const secondaryBtn = document.createElement('button');
             secondaryBtn.className = 'mobile-menu-btn secondary';
-            secondaryBtn.onclick = function() { window.location.href = '/login'; };
+            secondaryBtn.onclick = function () { window.location.href = '/login'; };
             secondaryBtn.textContent = 'Accedi';
 
             mobileMenuButtons.appendChild(primaryBtn);
@@ -228,10 +246,10 @@ function updateMobileGuestMenu() {
 function toggleMobileUserMenu() {
     const userMenu = document.getElementById('mobile-user-menu');
     const arrow = document.querySelector('.mobile-user-arrow i');
-    
+
     if (userMenu) {
         userMenu.classList.toggle('hidden');
-        
+
         if (arrow) {
             if (userMenu.classList.contains('hidden')) {
                 arrow.style.transform = 'rotate(0deg)';
@@ -243,14 +261,14 @@ function toggleMobileUserMenu() {
 }
 
 function setupActionListeners() {
-    document.querySelectorAll('.action-item').forEach(function(item) {
+    document.querySelectorAll('.action-item').forEach(function (item) {
         const action = item.getAttribute("data-action");
         item.replaceWith(item.cloneNode(true));
     });
-    
-    document.querySelectorAll('.action-item').forEach(function(item) {
+
+    document.querySelectorAll('.action-item').forEach(function (item) {
         const action = item.getAttribute("data-action");
-        item.addEventListener("click", function() {
+        item.addEventListener("click", function () {
             handleAction(action);
         });
     });
@@ -274,34 +292,11 @@ function handleAction(action) {
             window.location.href = "/account/settings";
             break;
         case 'logout':
-            performLogout();
+            window.location.href = "/logout";
             break;
         default:
             break;
     }
-}
-
-function performLogout() {
-    fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || '',
-            'Content-Type': 'application/json'
-        }
-    })
-        .then(function(response) {
-            if (response.ok) {
-                currentUser = null;
-                updateUIForGuestUser();
-                window.location.href = '/';
-            } else {
-                console.error('Errore durante il logout');
-            }
-        })
-        .catch(function(error) {
-            console.error('Errore durante il logout:', error);
-            window.location.href = "/logout";
-        });
 }
 
 function onOpenSearch(event) {
@@ -365,7 +360,7 @@ function showNotificationPopup(type, title, message, actions) {
         const popupActions = document.createElement('div');
         popupActions.className = 'popup-actions';
 
-        actions.forEach(function(action) {
+        actions.forEach(function (action) {
             const actionBtn = document.createElement('a');
             actionBtn.href = action.url;
             actionBtn.className = 'popup-btn ' + (action.primary ? 'primary' : '');

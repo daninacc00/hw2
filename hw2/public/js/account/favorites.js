@@ -1,25 +1,23 @@
 loadFavoriteProducts();
 
+function onError(error) {
+    console.error('Errore nel caricamento dei prodotti preferiti:', error);
+    showAlert('Errore nel caricamento dei prodotti. Riprova più tardi.', 'error');
+}
+
 function loadFavoriteProducts() {
     fetch("/api/favorites/get")
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
+        .then(onResponse)
+        .then(function (data) {
+            if (!data) return;
+
             if (data.success) {
                 renderProducts(data.data);
             } else {
-                if (data.error_type === 'auth_required') {
-                    showAuthRequiredState(data.message, data.redirect_url);
-                } else {
-                    showErrorMessage(data.message);
-                }
+                showAlert(data.message || 'Errore nel caricamento dei prodotti preferiti', 'error');
             }
         })
-        .catch(function(error) {
-            console.error('Errore nel caricamento dei prodotti preferiti:', error);
-            showErrorMessage('Errore nel caricamento dei prodotti. Riprova più tardi.');
-        });
+        .catch(onError);
 }
 
 function renderProducts(products) {
@@ -37,7 +35,7 @@ function renderProducts(products) {
         return;
     }
 
-    products.forEach(function(product) {
+    products.forEach(function (product) {
         const productCard = createProductCard(product);
         productsGrid.appendChild(productCard);
     });
@@ -58,8 +56,7 @@ function createProductCard(product) {
 
     const heartButton = document.createElement('button');
     heartButton.className = 'heart-icon';
-    heartButton.addEventListener('click', function (e) {
-        e.preventDefault();
+    heartButton.addEventListener('click', function () {
         handleRemoveFromFavorites(product.id, card);
     });
 
@@ -98,8 +95,7 @@ function createProductCard(product) {
 
     const cartButton = document.createElement('button');
     cartButton.className = 'product-status ' + (product.isInCart ? 'status-added' : 'status-add-to-cart');
-    cartButton.addEventListener('click', function (e) {
-        e.preventDefault();
+    cartButton.addEventListener('click', function () {
         handleCartToggle(product.id, cartButton, product.isInCart);
     });
 
@@ -130,34 +126,24 @@ function createProductCard(product) {
 function handleRemoveFromFavorites(productId, cardElement) {
     const formData = new FormData();
     formData.append('productId', productId);
+    formData.append('_token', getCsrfToken());
 
     fetch("/api/favorites/remove", {
         method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
-        }
+        body: formData
     })
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(result) {
-            if (result.success) {
-                cardElement.style.opacity = '0.5';
+        .then(onResponse)
+        .then(function (data) {
+            if (!data) return;
+
+            if (data.success) {
                 loadFavoriteProducts();
                 updateFavoritesCounter(-1);
             } else {
-                if (result.error_type === 'auth_required') {
-                    showAuthRequiredState(result.message, result.redirect_url);
-                } else {
-                    showErrorMessage(result.message || 'Errore durante la rimozione dai preferiti');
-                }
+                showAlert(data.message || 'Errore nella rimozione del prodotto', 'error');
             }
         })
-        .catch(function(error) {
-            console.error('Errore nella rimozione dai preferiti:', error);
-            showErrorMessage('Errore nella rimozione del prodotto. Riprova.');
-        });
+        .catch(onError);
 }
 
 function handleCartToggle(productId, buttonElement, isCurrentlyInCart) {
@@ -171,46 +157,30 @@ function handleCartToggle(productId, buttonElement, isCurrentlyInCart) {
 function handleRemoveFromCart(productId, buttonElement) {
     buttonElement.disabled = true;
     buttonElement.style.opacity = '0.6';
-    const originalText = buttonElement.innerHTML;
-
     buttonElement.textContent = 'Rimuovendo...';
 
     const formData = new FormData();
     formData.append('productId', productId);
+    formData.append('_token', getCsrfToken());
 
     fetch("/api/cart/remove", {
         method: 'POST',
         body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
-        }
     })
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(result) {
-            if (result.success) {
+        .then(onResponse)
+        .then(function (data) {
+            if (!data) return;
+
+            if (data.success) {
                 buttonElement.className = 'product-status status-add-to-cart';
                 buttonElement.textContent = 'Aggiungi al carrello';
-
-                updateCartCounter(result.deleted_count);
-                showSuccessMessage('Prodotto rimosso dal carrello');
-
+                updateCartCounter(-data.deleted_count);
                 loadFavoriteProducts();
             } else {
-                if (result.error_type === 'auth_required') {
-                    showAuthRequiredState(result.message, result.redirect_url);
-                } else {
-                    showErrorMessage(result.message || 'Errore durante la rimozione dal carrello');
-                    buttonElement.innerHTML = originalText;
-                }
+                showAlert(data.message || 'Errore nella rimozione del prodotto', 'error');
             }
         })
-        .catch(function(error) {
-            console.error('Errore nella rimozione dal carrello:', error);
-            showErrorMessage('Errore nella rimozione del prodotto. Riprova.');
-            buttonElement.innerHTML = originalText;
-        })
+        .catch(onError)
         .finally(function () {
             buttonElement.disabled = false;
             buttonElement.style.opacity = '1';
@@ -257,28 +227,29 @@ function showAddToCartModal(productId, buttonElement) {
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 
-    closeBtn.addEventListener('click', function() {
+    closeBtn.addEventListener('click', function () {
         document.body.removeChild(modal);
     });
+
     modal.addEventListener('click', function (e) {
         if (e.target === modal) document.body.removeChild(modal);
     });
 
     fetch('/api/favorites/product?id=' + productId)
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(result) {
-            if (result.success) {
-                renderCartModal(result.data, modal, buttonElement);
+        .then(onResponse)
+        .then(function (data) {
+            if (!data) return;
+
+            if (data.success) {
+                renderCartModal(data.data, modal, buttonElement);
             } else {
-                showErrorMessage('Errore nel caricamento delle opzioni prodotto');
                 document.body.removeChild(modal);
+                showAlert(data.message || 'Errore nel caricamento delle opzioni prodotto', 'error');
             }
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.error('Errore:', error);
-            showErrorMessage('Errore nel caricamento delle opzioni prodotto');
+            showAlert('Errore nel caricamento delle opzioni prodotto', 'error');
             document.body.removeChild(modal);
         });
 }
@@ -313,7 +284,7 @@ function renderCartModal(product, modal, buttonElement) {
         const colorOptions = document.createElement('div');
         colorOptions.className = 'color-options';
 
-        product.colors.forEach(function(color, index) {
+        product.colors.forEach(function (color, index) {
             const colorOption = document.createElement('div');
             colorOption.className = 'color-option';
             if (index === 0) colorOption.classList.add('selected');
@@ -322,7 +293,7 @@ function renderCartModal(product, modal, buttonElement) {
             colorOption.style.backgroundColor = color.hex_code;
 
             colorOption.addEventListener('click', function () {
-                colorOptions.querySelectorAll('.color-option').forEach(function(el) {
+                colorOptions.querySelectorAll('.color-option').forEach(function (el) {
                     el.classList.remove('selected');
                 });
                 colorOption.classList.add('selected');
@@ -347,7 +318,7 @@ function renderCartModal(product, modal, buttonElement) {
         const sizeOptions = document.createElement('div');
         sizeOptions.className = 'size-options';
 
-        product.sizes.forEach(function(size) {
+        product.sizes.forEach(function (size) {
             const sizeOption = document.createElement('button');
             sizeOption.className = 'size-option';
             sizeOption.dataset.sizeId = size.id;
@@ -356,7 +327,7 @@ function renderCartModal(product, modal, buttonElement) {
 
             sizeOption.addEventListener('click', function () {
                 if (!sizeOption.disabled) {
-                    sizeOptions.querySelectorAll('.size-option').forEach(function(el) {
+                    sizeOptions.querySelectorAll('.size-option').forEach(function (el) {
                         el.classList.remove('selected');
                     });
                     sizeOption.classList.add('selected');
@@ -401,19 +372,17 @@ function addToCartWithOptions(productId, colorId, sizeId, buttonElement, modal) 
     formData.append('colorId', colorId);
     formData.append('sizeId', sizeId);
     formData.append('quantity', 1);
+    formData.append('_token', getCsrfToken());
 
     fetch("/api/cart/add", {
         method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || ''
-        }
+        body: formData
     })
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(result) {
-            if (result.success) {
+        .then(onResponse)
+        .then(function (data) {
+            if (!data) return;
+
+            if (data.success) {
                 buttonElement.className = 'product-status status-added';
 
                 const statusIndicator = document.createElement('span');
@@ -424,20 +393,18 @@ function addToCartWithOptions(productId, colorId, sizeId, buttonElement, modal) 
                 buttonElement.appendChild(document.createTextNode('Aggiunto'));
 
                 updateCartCounter(1);
-                showSuccessMessage('Prodotto aggiunto al carrello');
                 document.body.removeChild(modal);
-
                 loadFavoriteProducts();
             } else {
-                showErrorMessage(result.message || 'Errore durante l\'aggiunta al carrello');
+                showAlert(data.message || 'Errore durante l\'aggiunta al carrello', 'error');
                 addBtn.disabled = false;
                 addBtn.classList.remove('loading');
                 addBtn.textContent = 'Aggiungi al carrello';
             }
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.error('Errore nell\'aggiunta al carrello:', error);
-            showErrorMessage('Errore nell\'aggiunta al carrello. Riprova.');
+            showAlert('Errore nell\'aggiunta al carrello. Riprova.', 'error');
             addBtn.disabled = false;
             addBtn.classList.remove('loading');
             addBtn.textContent = 'Aggiungi al carrello';
@@ -464,62 +431,29 @@ function showEmptyState() {
     productsGrid.appendChild(emptyAlert);
 }
 
-function showAuthRequiredState(message, redirectUrl) {
+function showAlert(message, type) {
+    const existingAlert = document.querySelector('.favorites-alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+
+    const container = document.querySelector('.container');
     const productsGrid = document.querySelector('.products-grid');
-    productsGrid.innerHTML = "";
 
-    const authAlert = document.createElement("div");
-    authAlert.classList.add("auth-required-alert");
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'favorites-alert favorites-alert-' + type;
+    alertDiv.textContent = message;
 
-    const icon = document.createElement("i");
-    icon.className = "fa-solid fa-heart auth-icon";
-
-    const title = document.createElement("h2");
-    title.className = "auth-title";
-    title.textContent = "Accedi per vedere i tuoi preferiti";
-
-    const description = document.createElement("p");
-    description.className = "auth-description";
-    description.textContent = message || "Devi essere loggato per accedere ai tuoi preferiti";
-
-    const loginBtn = document.createElement("a");
-    loginBtn.href = redirectUrl || "/login";
-    loginBtn.className = "btn btn-primary btn-login";
-    loginBtn.textContent = "Accedi";
-
-    authAlert.appendChild(icon);
-    authAlert.appendChild(title);
-    authAlert.appendChild(description);
-    authAlert.appendChild(loginBtn);
-    productsGrid.appendChild(authAlert);
-}
-
-function showErrorMessage(message) {
-    showMessage(message, 'error');
-}
-
-function showSuccessMessage(message) {
-    showMessage(message, 'success');
-}
-
-function showMessage(message, type) {
-    const existingMessages = document.querySelectorAll('.feedback-message');
-    existingMessages.forEach(function(msg) {
-        msg.remove();
+    const dismissBtn = document.createElement('button');
+    dismissBtn.className = 'alert-dismiss';
+    dismissBtn.innerHTML = '&times;';
+    dismissBtn.addEventListener('click', function () {
+        alertDiv.remove();
     });
 
-    const messageElement = document.createElement('div');
-    messageElement.className = 'feedback-message feedback-' + type;
-    messageElement.textContent = message;
+    alertDiv.appendChild(dismissBtn);
 
-    document.body.appendChild(messageElement);
-
-    messageElement.offsetHeight;
-    messageElement.classList.add('show');
-
-    messageElement.addEventListener('click', function () {
-        messageElement.classList.remove('show');
-    });
+    container.insertBefore(alertDiv, productsGrid);
 }
 
 function updateFavoritesCounter(delta) {

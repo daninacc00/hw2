@@ -1,11 +1,37 @@
-const detailButtons = document.querySelectorAll('.view-details-btn');
+function showAlert(message, type) {
+    const existingAlert = document.querySelector('.orders-alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
 
-for (let i = 0; i < detailButtons.length; i++) {
-    const button = detailButtons[i];
-    button.addEventListener('click', function (event) {
-        const orderId = event.target.getAttribute('data-order-id');
-        toggleOrderItems(orderId);
+    const container = document.querySelector('.orders-container');
+    const pageHeader = document.querySelector('.page-header');
+
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'orders-alert orders-alert-' + type;
+    alertDiv.textContent = message;
+
+    const dismissBtn = document.createElement('button');
+    dismissBtn.className = 'alert-dismiss';
+    dismissBtn.innerHTML = '&times;';
+    dismissBtn.addEventListener('click', function () {
+        alertDiv.remove();
     });
+
+    alertDiv.appendChild(dismissBtn);
+
+    container.insertBefore(alertDiv, pageHeader.nextSibling);
+}
+
+function showLoading(container, show) {
+    if (show) {
+        const itemLoading = document.createElement("div");
+        const text = document.createElement("span");
+        text.textContent = "Caricamento prodotti...";
+
+        itemLoading.appendChild(text);
+        container.append(itemLoading);
+    }
 }
 
 function toggleOrderItems(orderId) {
@@ -29,42 +55,42 @@ function toggleOrderItems(orderId) {
 function loadOrderItems(orderId) {
     const container = document.querySelector('.items-container[data-order-id="' + orderId + '"]');
 
-    container.innerHTML = '<div class="loading">Caricamento prodotti...</div>';
+    showLoading(container, true);
 
     fetch('/api/orders/items?order_id=' + orderId)
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error('Errore HTTP: ' + response.status);
-            }
-            return response.json();
-        })
+        .then(onResponse)
         .then(function (result) {
-            console.log('Prodotti ordine ricevuti:', result);
+            if (!result) return;
 
             if (result.success && result.items) {
                 displayOrderItems(container, result.items);
                 container.setAttribute('data-loaded', 'true');
             } else {
-                container.innerHTML = '<div class="loading">Errore nel caricamento dei prodotti</div>';
+                container.innerHTML = '';
+                showAlert(result.message || 'Errore nel caricamento dei prodotti dell\'ordine', 'error');
             }
         })
         .catch(function (error) {
             console.error('Errore nel caricamento prodotti ordine:', error);
-            container.innerHTML = '<div class="loading">Errore di connessione</div>';
+            container.innerHTML = '';
+            showAlert('Errore di connessione. Riprova più tardi.', 'error');
         });
 }
 
 function displayOrderItems(container, items) {
     if (items.length === 0) {
-        container.innerHTML = '<div class="loading">Nessun prodotto trovato</div>';
+        const emptyItems = document.createElement("div");
+        const text = document.createElement("span");
+        text.textContent = "Nessun prodotto trovato";
+
+        emptyItems.appendChild(text);
+        container.append(emptyItems);
         return;
     }
 
     container.innerHTML = '';
 
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-
+    items.forEach(function (item) {
         const itemDetail = document.createElement('div');
         itemDetail.className = 'item-detail';
 
@@ -108,13 +134,22 @@ function displayOrderItems(container, items) {
         const totalPrice = item.price * item.quantity;
         const itemPrice = document.createElement('div');
         itemPrice.className = 'item-price';
-        itemPrice.textContent = '€' + totalPrice.toFixed(2);
-        itemDetail.appendChild(itemPrice);
+        itemPrice.textContent = formatPrice(totalPrice);
 
+        itemDetail.appendChild(itemPrice);
         container.appendChild(itemDetail);
-    }
+    });
 }
 
 function formatPrice(price) {
-    return parseFloat(price).toFixed(2);
+    return '€' + parseFloat(price).toFixed(2).replace('.', ',');
 }
+
+const detailButtons = document.querySelectorAll('.view-details-btn');
+
+detailButtons.forEach(function (button) {
+    button.addEventListener('click', function (event) {
+        const orderId = event.target.getAttribute('data-order-id');
+        toggleOrderItems(orderId);
+    });
+});

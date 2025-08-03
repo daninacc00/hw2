@@ -23,6 +23,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::get('/api/user/profile', [UserController::class, 'getProfile']);
+
 Route::get('/shop', [ShopController::class, 'shop']);
 Route::get('/api/shop/products', [ShopController::class, 'getProducts']);
 Route::get('/api/shop/product', [ShopController::class, 'getProduct']);
@@ -32,8 +34,6 @@ Route::get('/api/product', [ProductController::class, 'getProductData']);
 
 Route::middleware(AuthMiddleware::class)->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
-
-    Route::get('/api/user/profile', [UserController::class, 'getProfile']);
 
     Route::get('/account', [AccountController::class, 'profile']);
     Route::get('/account/settings', [AccountController::class, 'settings']);
