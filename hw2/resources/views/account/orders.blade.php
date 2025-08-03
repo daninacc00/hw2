@@ -16,60 +16,11 @@
         <h1>I Miei Ordini</h1>
     </header>
 
-    @if($orders->isEmpty())
-        <div class="no-orders">
-            <h2>Nessun ordine trovato</h2>
-            <p>Non hai ancora effettuato nessun ordine.</p>
-            <a href="/" class="shop-button">Inizia a fare shopping</a>
-        </div>
-    @else
-        <div class="orders-list">
-            @foreach($orders as $order)
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <h3>Ordine #{{ $order->id }}</h3>
-                            <p class="order-date">
-                                {{ $order->created_at->format('d/m/Y H:i') }}
-                            </p>
-                            @if($order->square_order_id)
-                                <p class="square-id">Square ID: {{ $order->square_order_id }}</p>
-                            @endif
-                        </div>
-                        <div class="order-status">
-                            <span class="status-badge status-{{ $order->status }}">
-                                {{ $order->status_label }}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="order-details">
-                        <div class="billing-info">
-                            <h4>Dati di Fatturazione</h4>
-                            <p><strong>{{ $order->billing_name }}</strong></p>
-                            <p>{{ $order->billing_email }}</p>
-                            <p>{{ $order->billing_address }}</p>
-                        </div>
-                        
-                        <div class="order-summary">
-                            <p class="items-count">{{ $order->items_count }} prodotti</p>
-                            <p class="total-amount">
-                                <strong>Totale: €{{ $order->total_amount }}</strong>
-                            </p>
-                            <button class="view-details-btn" data-order-id="{{ $order->id }}">
-                                Vedi Dettagli
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="order-items-{{ $order->id }}" class="order-items" style="display: none;">
-                        <h4>Prodotti nell'ordine</h4>
-                        <div class="items-container" data-order-id="{{ $order->id }}">
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @endif
+    <div id="orders-loading" class="orders-loading">
+        <p>Caricamento ordini...</p>
+    </div>
+
+    <div id="orders-content" class="orders-content">
+    </div>
 </div>
 @endsection

@@ -1,6 +1,7 @@
+// ========== STATE VARIABLES ==========
 let currentTab = "profile";
-showTab(currentTab);
 
+// ========== TAB NAVIGATION ==========
 function handleClickTab(e, link) {
     const tabName = link.getAttribute('data-tab');
 
@@ -52,10 +53,15 @@ function hideTab(tabName) {
 }
 
 const tabLinks = document.querySelectorAll('.tab-link');
-const tabContents = document.querySelectorAll('.tab-content');
 
-tabLinks.forEach(link => {
+tabLinks.forEach(function (link) {
     link.addEventListener('click', function (e) {
         handleClickTab(e, link);
-    });
+    })
 });
+
+function initialize() {
+    showTab(currentTab);
+}
+
+initialize();

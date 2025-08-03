@@ -10,18 +10,53 @@ class OrderController extends Controller
 {
     public function orders()
     {
+        // Return empty view - data will be loaded via JavaScript
+        return view('account.orders');
+    }
+
+    public function getOrders(Request $request)
+    {
         $userId = session('user_id');
 
         if (!$userId) {
-            return redirect('/login');
+            return response()->json([
+                'success' => false,
+                'message' => 'Utente non autenticato'
+            ]);
         }
 
-        $orders = Order::where('user_id', $userId)
-            ->withCount('orderItems as items_count')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        try {
+            $orders = Order::where('user_id', $userId)
+                ->withCount('orderItems as items_count')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($order) {
+                    return [
+                        'id' => $order->id,
+                        'square_order_id' => $order->square_order_id,
+                        'status' => $order->status,
+                        'status_label' => $this->getStatusLabel($order->status),
+                        'total_amount' => number_format($order->total_amount, 2),
+                        'billing_name' => $order->billing_name,
+                        'billing_email' => $order->billing_email,
+                        'billing_address' => $order->billing_address,
+                        'items_count' => $order->items_count,
+                        'created_at' => $order->created_at->format('d/m/Y H:i')
+                    ];
+                });
 
-        return view('account.orders', compact('orders'));
+            return response()->json([
+                'success' => true,
+                'data' => $orders,
+                'message' => 'Ordini caricati con successo'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Errore durante il caricamento degli ordini'
+            ]);
+        }
     }
 
     public function getOrderItems(Request $request)
@@ -86,5 +121,16 @@ class OrderController extends Controller
                 'message' => 'Errore durante il caricamento'
             ]);
         }
+    }
+
+    private function getStatusLabel($status)
+    {
+        $labels = [
+            'pending' => 'In Attesa',
+            'paid' => 'Pagato',
+            'cancelled' => 'Annullato'
+        ];
+
+        return $labels[$status] ?? ucfirst($status);
     }
 }

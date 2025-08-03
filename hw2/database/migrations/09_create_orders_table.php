@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('square_order_id')->nullable(); // ID ordine da Square API
+            $table->string('square_order_id')->nullable();
             $table->enum('status', ['pending', 'paid', 'cancelled'])->default('pending');
             $table->decimal('total_amount', 10, 2);
             $table->string('billing_name', 100);

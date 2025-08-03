@@ -1,5 +1,19 @@
-let currentUser = null;
+// ========== CONSTANTS ==========
+const USER_ACTIONS = [
+    { action: 'profile', text: 'Profilo' },
+    { action: 'favorites', text: 'Preferiti' },
+    { action: 'cart', text: 'Carrello' },
+    { action: 'orders', text: 'Ordini' },
+    { action: 'settings', text: 'Impostazioni account' },
+    { action: 'logout', text: 'Esci' }
+];
 
+// ========== VARIABLES ==========
+let currentUser = null;
+let cartCount = 0;
+let favoritesCount = 0;
+
+// ========== UTILITY FUNCTIONS ==========
 function getCsrfToken() {
     const metaElement = document.querySelector('meta[name="csrf-token"]');
     return metaElement ? metaElement.getAttribute('content') : '';
@@ -18,49 +32,7 @@ function onResponse(response) {
     return response.json();
 }
 
-loadUserData();
-
-function loadUserData() {
-    fetch('/api/user/profile', {
-        headers: {
-            'X-CSRF-TOKEN': getCsrfToken()
-        }
-    })
-        .then(function (response) {
-            if (response.ok) {
-                return response.json();
-            } else {
-                currentUser = null;
-                updateUIForGuestUser();
-                return null;
-            }
-        })
-        .then(function (data) {
-            if (data && data.success && data.user) {
-                currentUser = data.user;
-                updateUIForLoggedUser();
-            } else {
-                currentUser = null;
-                updateUIForGuestUser();
-            }
-        })
-        .catch(function (error) {
-            console.error('Errore nel caricamento dati utente:', error);
-            currentUser = null;
-            updateUIForGuestUser();
-        });
-}
-
-function updateUIForLoggedUser() {
-    updateDesktopUserMenu();
-    updateMobileUserMenu();
-}
-
-function updateUIForGuestUser() {
-    updateDesktopGuestMenu();
-    updateMobileGuestMenu();
-}
-
+// ========== DESKTOP MENU ==========
 function updateDesktopUserMenu() {
     const userMenuItem = document.querySelector('#user-menu-navbar .list-item:last-child');
     if (userMenuItem && currentUser) {
@@ -81,16 +53,7 @@ function updateDesktopUserMenu() {
         const actionList = document.createElement('ul');
         actionList.className = 'action-list';
 
-        const actions = [
-            { action: 'profile', text: 'Profilo' },
-            { action: 'favorites', text: 'Preferiti' },
-            { action: 'cart', text: 'Carrello' },
-            { action: 'orders', text: 'Ordini' },
-            { action: 'settings', text: 'Impostazioni account' },
-            { action: 'logout', text: 'Esci' }
-        ];
-
-        actions.forEach(function (actionData) {
+        USER_ACTIONS.forEach(function (actionData) {
             const actionItem = document.createElement('li');
             actionItem.className = 'action-item';
             actionItem.dataset.action = actionData.action;
@@ -98,6 +61,10 @@ function updateDesktopUserMenu() {
             const actionText = document.createElement('span');
             actionText.className = 'action-text';
             actionText.textContent = actionData.text;
+
+            actionItem.addEventListener("click", function () {
+                handleAction(actionData.action);
+            });
 
             actionItem.appendChild(actionText);
             actionList.appendChild(actionItem);
@@ -110,8 +77,6 @@ function updateDesktopUserMenu() {
 
         userMenuItem.innerHTML = '';
         userMenuItem.appendChild(tooltipContainer);
-
-        setupActionListeners();
     }
 }
 
@@ -132,6 +97,127 @@ function updateDesktopGuestMenu() {
     }
 }
 
+function handleAction(action) {
+    switch (action) {
+        case 'profile':
+            window.location.href = "/account";
+            break;
+        case 'favorites':
+            window.location.href = "/account/favorites";
+            break;
+        case 'cart':
+            window.location.href = "/account/cart";
+            break;
+        case 'orders':
+            window.location.href = "/account/orders";
+            break;
+        case 'settings':
+            window.location.href = "/account/settings";
+            break;
+        case 'logout':
+            window.location.href = "/logout";
+            break;
+        default:
+            break;
+    }
+}
+
+// ========== SEARCH FUNCTIONALITY ==========
+function onOpenSearch(event) {
+    const container = event.currentTarget;
+    container.classList.add("search-open");
+    document.body.classList.add('no-scroll');
+    document.addEventListener("click", onCloseSearchOutside);
+}
+
+function onCloseSearch(event) {
+    event.stopPropagation();
+    const container = document.querySelector("#search-bar-container");
+    container.classList.remove("search-open");
+    document.body.classList.remove('no-scroll');
+    document.removeEventListener("click", onCloseSearchOutside);
+}
+
+function onCloseSearchOutside(event) {
+    const container = document.querySelector("#search-bar-container");
+    if (!container.contains(event.target)) {
+        onCloseSearch(event);
+    }
+}
+
+// ========== FAVORITES FUNCTIONS ==========
+function updateFavoritesCounter(quantity) {
+    favoritesCount += quantity;
+    const counter = document.getElementById('favorites-counter');
+
+    if (favoritesCount > 0) {
+        counter.textContent = favoritesCount;
+        counter.classList.remove('hidden');
+    } else {
+        counter.classList.add('hidden');
+    }
+}
+
+// ========== CART FUNCTIONS ==========
+function updateCartCounter(quantity) {
+    cartCount += quantity;
+    const counter = document.getElementById('cart-counter');
+
+    if (cartCount > 0) {
+        counter.textContent = cartCount;
+        counter.classList.remove('hidden');
+    } else {
+        counter.classList.add('hidden');
+    }
+}
+
+// ========== API CALL ==========
+function updateUIForLoggedUser() {
+    updateDesktopUserMenu();
+    updateMobileUserMenu();
+}
+
+function updateUIForGuestUser() {
+    updateDesktopGuestMenu();
+    updateMobileGuestMenu();
+}
+
+function handleUserDataSuccess(data) {
+    if (data && data.success && data.user) {
+        currentUser = data.user;
+        updateUIForLoggedUser();
+    } else {
+        currentUser = null;
+        updateUIForGuestUser();
+    }
+}
+
+function handleUserDataError(error) {
+    console.error('Errore nel caricamento dati utente:', error);
+    currentUser = null;
+    updateUIForGuestUser();
+}
+
+function loadUserData() {
+    fetch('/api/user/profile', {
+        headers: {
+            'X-CSRF-TOKEN': getCsrfToken()
+        }
+    })
+        .then(function (response) {
+            if (response.ok) {
+                return response.json();
+            } else {
+                currentUser = null;
+                updateUIForGuestUser();
+                return null;
+            }
+        })
+        .then(handleUserDataSuccess)
+        .catch(handleUserDataError);
+}
+
+// ========== MOBILE MENU ==========
 function updateMobileUserMenu() {
     const mobileMenuNav = document.querySelector('.mobile-menu-nav');
     if (mobileMenuNav && currentUser) {
@@ -176,20 +262,15 @@ function updateMobileUserMenu() {
             const mobileUserActions = document.createElement('ul');
             mobileUserActions.className = 'mobile-user-actions';
 
-            const mobileActions = [
-                { action: 'profile', text: 'Profilo' },
-                { action: 'favorites', text: 'Preferiti' },
-                { action: 'cart', text: 'Carrello' },
-                { action: 'orders', text: 'Ordini' },
-                { action: 'settings', text: 'Impostazioni account' },
-                { action: 'logout', text: 'Esci' }
-            ];
-
-            mobileActions.forEach(function (actionData) {
+            USER_ACTIONS.forEach(function (actionData) {
                 const li = document.createElement('li');
                 const a = document.createElement('a');
                 a.href = '#';
-                a.onclick = function () { handleAction(actionData.action); };
+
+                a.addEventListener("click", function () {
+                    handleAction(actionData.action);
+                });
+                
                 a.textContent = actionData.text;
                 li.appendChild(a);
                 mobileUserActions.appendChild(li);
@@ -260,147 +341,6 @@ function toggleMobileUserMenu() {
     }
 }
 
-function setupActionListeners() {
-    document.querySelectorAll('.action-item').forEach(function (item) {
-        const action = item.getAttribute("data-action");
-        item.replaceWith(item.cloneNode(true));
-    });
-
-    document.querySelectorAll('.action-item').forEach(function (item) {
-        const action = item.getAttribute("data-action");
-        item.addEventListener("click", function () {
-            handleAction(action);
-        });
-    });
-}
-
-function handleAction(action) {
-    switch (action) {
-        case 'profile':
-            window.location.href = "/account";
-            break;
-        case 'favorites':
-            window.location.href = "/account/favorites";
-            break;
-        case 'cart':
-            window.location.href = "/account/cart";
-            break;
-        case 'orders':
-            window.location.href = "/account/orders";
-            break;
-        case 'settings':
-            window.location.href = "/account/settings";
-            break;
-        case 'logout':
-            window.location.href = "/logout";
-            break;
-        default:
-            break;
-    }
-}
-
-function onOpenSearch(event) {
-    const container = event.currentTarget;
-    container.classList.add("search-open");
-    document.body.classList.add('no-scroll');
-    document.addEventListener("click", onCloseSearchOutside);
-}
-
-function onCloseSearch(event) {
-    event.stopPropagation();
-    let container = document.querySelector("#search-bar-container");
-    container.classList.remove("search-open");
-    document.body.classList.remove('no-scroll');
-    document.removeEventListener("click", onCloseSearchOutside);
-}
-
-function onCloseSearchOutside(event) {
-    let container = document.querySelector("#search-bar-container");
-    if (!container.contains(event.target)) {
-        onCloseSearch(event);
-    }
-}
-
-let searchBarContainer = document.querySelector("#search-bar-container");
-searchBarContainer.addEventListener("click", onOpenSearch);
-
-let closeSearch = document.querySelector(".close-search-btn");
-closeSearch.addEventListener("click", onCloseSearch);
-
-let cartCount = 0;
-let favoritesCount = 0;
-
-function showNotificationPopup(type, title, message, actions) {
-    actions = actions || [];
-    const existingPopup = document.querySelector('.notification-popup');
-    if (existingPopup) {
-        existingPopup.remove();
-    }
-
-    const popup = document.createElement('div');
-    popup.className = 'notification-popup ' + type;
-
-    const popupHeader = document.createElement('div');
-    popupHeader.className = 'popup-header';
-
-    const popupTitle = document.createElement('h3');
-    popupTitle.className = 'popup-title';
-    popupTitle.textContent = title;
-
-    popupHeader.appendChild(popupTitle);
-
-    const popupMessage = document.createElement('p');
-    popupMessage.className = 'popup-message';
-    popupMessage.textContent = message;
-
-    popup.appendChild(popupHeader);
-    popup.appendChild(popupMessage);
-
-    if (actions.length > 0) {
-        const popupActions = document.createElement('div');
-        popupActions.className = 'popup-actions';
-
-        actions.forEach(function (action) {
-            const actionBtn = document.createElement('a');
-            actionBtn.href = action.url;
-            actionBtn.className = 'popup-btn ' + (action.primary ? 'primary' : '');
-            actionBtn.textContent = action.text;
-            popupActions.appendChild(actionBtn);
-        });
-
-        popup.appendChild(popupActions);
-    }
-
-    document.body.appendChild(popup);
-
-    popup.offsetHeight;
-    popup.classList.add('show');
-}
-
-function updateCartCounter(quantity) {
-    cartCount += quantity;
-    const counter = document.getElementById('cart-counter');
-
-    if (cartCount > 0) {
-        counter.textContent = cartCount;
-        counter.classList.remove('hidden');
-    } else {
-        counter.classList.add('hidden');
-    }
-}
-
-function updateFavoritesCounter(quantity) {
-    favoritesCount += quantity;
-    const counter = document.getElementById('favorites-counter');
-
-    if (favoritesCount > 0) {
-        counter.textContent = favoritesCount;
-        counter.classList.remove('hidden');
-    } else {
-        counter.classList.add('hidden');
-    }
-}
-
 function openMobileMenu() {
     const menu = document.querySelector('#mobile-menu');
     const overlay = document.querySelector('#mobile-menu-overlay');
@@ -429,6 +369,17 @@ function onOverlayClick() {
     closeMobileMenu();
 }
 
+
+const searchBarContainer = document.querySelector("#search-bar-container");
+if (searchBarContainer) {
+    searchBarContainer.addEventListener("click", onOpenSearch);
+}
+
+const closeSearch = document.querySelector(".close-search-btn");
+if (closeSearch) {
+    closeSearch.addEventListener("click", onCloseSearch);
+}
+
 const hamburgerButton = document.querySelector('.hamburger-button');
 if (hamburgerButton) {
     hamburgerButton.addEventListener('click', onHamburgerClick);
@@ -443,3 +394,9 @@ const overlay = document.querySelector('#mobile-menu-overlay');
 if (overlay) {
     overlay.addEventListener('click', onOverlayClick);
 }
+
+function initialize() {
+    loadUserData();
+}
+
+initialize();
