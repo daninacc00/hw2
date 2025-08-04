@@ -27,13 +27,6 @@
 
     <div class="container">
         <div class="filters">
-            <div class="filter-section" data-section="gender">
-                <div class="filter-title">
-                    <h3>Genere</h3>
-                    <i class="fa-solid fa-chevron-down"></i>
-                </div>
-            </div>
-
             <div class="filter-section" data-section="section">
                 <div class="filter-title">
                     <h3>Categoria</h3>

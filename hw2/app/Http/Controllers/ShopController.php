@@ -41,7 +41,7 @@ class ShopController extends Controller
                 $filters['gender'] = [0];
             } elseif ($genderValue === 'women') {
                 $filters['gender'] = [1];
-            } elseif ($genderValue === 'kids') {
+            } elseif ($genderValue === 'unisex') {
                 $filters['gender'] = [2];
             } else {
                 $gender = $request->get('gender');
